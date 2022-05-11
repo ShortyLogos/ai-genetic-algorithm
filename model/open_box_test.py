@@ -3,19 +3,26 @@ import model.gacvm as gacvm
 import model.umath as umath
 import sys
 
-
-def fitnessFunction(c):
-    return ((box_height - (2 * c)) * (box_width - (2 * c))) * c
+def open_box_fitness(c):
+    corner = c[0]
+    return ((box_height - (2 * corner)) * (box_width - (2 * corner))) * corner
 
 if __name__ == '__main__':
-    box_width = 24.0
-    box_height = 9.34
+    # Faire attention de ne pas faire des variables globales comme ceci dans le projet:
+    # Dans la classe Qt du problème, les définir
+    box_width = 10
+    box_height = 5
+    corner_range = np.array([[0, box_height / 2]])
 
-    cornerRange = np.array([[0, box_height / 2]])
-    openBoxDomains = gacvm.Domains(cornerRange, ('c',))
+    open_box_domains = gacvm.Domains(corner_range, ('c',))
 
-    
-    openBoxProblem = gacvm.ProblemDefinition(openBoxDomains, fitnessFunction(c))
+    open_box_problem = gacvm.ProblemDefinition(open_box_domains, open_box_fitness)
+
+    genetic_algorithm = gacvm.GeneticAlgorithm(open_box_problem)
+    genetic_algorithm.is_ready
+    genetic_algorithm.evolve()
+    genetic_algorithm.population
+    pass
 
     # ajout de vos stratégies
     # -------------------------------------------------------- par exemple
