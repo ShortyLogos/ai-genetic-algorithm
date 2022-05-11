@@ -8,6 +8,8 @@ def open_box_fitness(c):
     return ((box_height - (2 * corner)) * (box_width - (2 * corner))) * corner
 
 if __name__ == '__main__':
+    # Construire une classe pour le OpenBoxProblem, avec self.__width et self.__height
+
     # Faire attention de ne pas faire des variables globales comme ceci dans le projet:
     # Dans la classe Qt du problème, les définir
     box_width = 10
