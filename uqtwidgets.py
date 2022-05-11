@@ -8,7 +8,7 @@
 
 
 import math
-import umath
+import model.umath as umath
 
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF
 from PySide6.QtWidgets import (QWidget, QLabel, QScrollBar, QPushButton,
