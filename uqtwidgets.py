@@ -8,7 +8,7 @@
 
 
 import math
-import umath
+import model.umath as umath
 
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF
 from PySide6.QtWidgets import (QWidget, QLabel, QScrollBar, QPushButton,
@@ -96,9 +96,6 @@ def create_scroll_real_value(min_val, init_val, max_val, precision, display_mult
 
     return scroll_bar, layout
 
-
-
-
 class QSimpleImage(QWidget):
     '''Widget to show image always enabled'''
 
@@ -114,6 +111,7 @@ class QSimpleImage(QWidget):
     @property
     def image(self):
         return self._image
+
     @image.setter
     def image(self, value):
         self._image = value

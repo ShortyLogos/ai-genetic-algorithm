@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-import gacvm
+import model.gacvm as gacvm
 import uqtwidgets
 
 from matplotlib.figure import Figure
