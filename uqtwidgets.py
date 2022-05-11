@@ -45,10 +45,10 @@ def create_scroll_int_value(min_val, init_val, max_val, value_prefix = "", value
     layout.add_widget(value_label)
     layout.add_widget(default_button)
 
-    update_function = lambda value: (value_label.setText(f'{value_prefix}{value}{value_suffix}'))
+    update_function = lambda value: (value_label.set_text(f'{value_prefix}{value}{value_suffix}'))
     update_function(init_val)
     scroll_bar.valueChanged.connect(update_function)
-    default_button.clicked.connect(lambda : (scroll_bar.setValue(init_val)))
+    default_button.clicked.connect(lambda : (scroll_bar.set_value(init_val)))
 
     return scroll_bar, layout
 
@@ -85,9 +85,9 @@ def create_scroll_real_value(min_val, init_val, max_val, precision, display_mult
     layout.add_widget(value_label)
     layout.add_widget(default_button)
 
-    scroll_bar.set_real_value = lambda value : (scroll_bar.setValue(round((value - min_val) * resolution)))
+    scroll_bar.set_real_value = lambda value : (scroll_bar.set_value(round((value - min_val) * resolution)))
     scroll_bar.get_real_value = lambda : scroll_bar.value / resolution + min_val
-    update_function = lambda value: (value_label.setText(f'{value_prefix}{scroll_bar.get_real_value() * display_multiplier:{format_string}}{value_suffix}'))
+    update_function = lambda value: (value_label.set_text(f'{value_prefix}{scroll_bar.get_real_value() * display_multiplier:{format_string}}{value_suffix}'))
     
     scroll_bar.set_real_value(init_val)
     update_function(init_val)

@@ -141,11 +141,11 @@ class QGAControlWidget(QGroupBox):
         self._start_stop_button.text = state_info[3]
         self._pause_resume_button.text = state_info[4]
 
-        self._current_state_label.setText(state_info[7])
+        self._current_state_label.set_text(state_info[7])
 
         epoch_prefix = 'Current epoch : '
         epoch_detail = f'{ "-na-" if self._ga_adapter.state is gacvm.GeneticAlgorithm.State.IDLE else self._ga_adapter.genetic_algorithm.current_epoch }'
-        self._current_epoch_label.setText(f'{epoch_prefix}{epoch_detail}')
+        self._current_epoch_label.set_text(f'{epoch_prefix}{epoch_detail}')
 
     @Slot()
     def _next_start_stop_state(self):
