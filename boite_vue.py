@@ -45,8 +45,7 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         self.parameter_changed.connect(self._update_adapter)
 
         self._open_box_problem = OpenBoxProblem()
-        self._new_problem = ProblemDefinition(self._open_box_problem.domains, self._open_box_problem)
-        self._genetic_algorithm = GeneticAlgorithm(self._new_problem)
+
 
     @Slot()
     def _update_adapter(self):
@@ -70,10 +69,12 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
-        self._genetic_algorithm.is_ready
-        self._genetic_algorithm.evolve()
-        self._genetic_algorithm.population
-        return self._new_problem
+        new_problem = ProblemDefinition(self._open_box_problem.domains, self._open_box_problem)
+        genetic_algorithm = GeneticAlgorithm(new_problem)
+        genetic_algorithm.is_ready
+        genetic_algorithm.evolve()
+        genetic_algorithm.population
+        return new_problem
 
     @property
     def default_parameters(self):
