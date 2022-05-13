@@ -8,7 +8,7 @@ class OpenBoxProblem:
     def __init__(self, width=10, height=5):
         self.__box_width = width
         self.__box_height = height
-        self.__corner_range = np.array([[0, self.__box_height / 2]])
+        self.__corner_range = np.array([[0, min(self.__box_height, self.__box_width) / 2]])
         self.__domains = gacvm.Domains(self.__corner_range, ('c',))
 
     @property
@@ -18,6 +18,7 @@ class OpenBoxProblem:
     @box_width.setter
     def box_width(self, value):
         self.__box_width = value
+        self.__reset_corner_range()
 
     @property
     def box_height(self):
@@ -26,6 +27,7 @@ class OpenBoxProblem:
     @box_height.setter
     def box_height(self, value):
         self.__box_height = value
+        self.__reset_corner_range()
 
     @property
     def corner_range(self):
@@ -34,6 +36,9 @@ class OpenBoxProblem:
     @property
     def domains(self):
         return self.__domains
+
+    def __reset_corner_range(self):
+        self.__corner_range = np.array([[0, min(self.__box_height, self.__box_width) / 2]])
 
     def __call__(self, c):
         corner = c[0]
