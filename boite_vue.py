@@ -1,5 +1,6 @@
 import gaapp
-from model.gacvm import Parameters, ProblemDefinition
+from model.gacvm import Parameters, ProblemDefinition, GeneticAlgorithm
+from model.openbox import OpenBoxProblem
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout
@@ -28,7 +29,15 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
-        return ProblemDefinition()
+        open_box_problem = OpenBoxProblem(10, 5)
+        new_problem = ProblemDefinition(open_box_problem.domains, open_box_problem.fitness)
+
+        genetic_algorithm = GeneticAlgorithm(new_problem)
+        genetic_algorithm.is_ready
+        genetic_algorithm.evolve()
+        genetic_algorithm.population
+
+        return new_problem
 
     @property
     def default_parameters(self):
