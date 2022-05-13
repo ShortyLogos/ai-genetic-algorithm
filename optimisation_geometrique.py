@@ -1,4 +1,5 @@
 import gaapp
+from model.gacvm import Parameters, ProblemDefinition
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QHBoxLayout
@@ -15,17 +16,18 @@ class FormePanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def summary(self):
-        return "Je ferai le summary plus tard"
+        return "Le but c'est de trouver la plus grosse forme qui rentre parce que c'est la grosseur qui compte."
 
     @property
     def description(self):
-        return "Je ferai la description plus tard"
+        return "Je ferai la description pour les belles grosses formes plus tard"
 
     @property
     def problem_definition(self):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
+        return ProblemDefinition()
 
     @property
     def default_parameters(self):
@@ -33,6 +35,8 @@ class FormePanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet de paramètres de l'algorithme génétique. Ces valeurs seront utilisée pour initialiser la liste des paramètres à gauche dans l'interface utilisateur.
         '''
+        return Parameters()
+
 
     def _update_from_simulation(self, ga=None):
         '''
