@@ -29,11 +29,19 @@ import sys
 # Forme normalisée -> 0 à 1 de chaque côté
 
 class GeometryOptimizationProblem:
-    def __init__(self, polygon, obstacles):
-        self.__polygon = polygon
-        self.__obstacles = obstacles
-        self.__corner_range = np.array([[0, self.__box_height / 2]])
-        self.__domains = gacvm.Domains(self.__corner_range, ('c',))
+    def __init__(self, polygon, obstacles, space_rectangle):
+        self.__polygon = polygon # QPolygonF
+        self.__obstacles = obstacles # Liste de QPointF
+        self.__space_rectangle = space_rectangle # QRectangleF
+        self.__translationX_range = np.array([-500, 500]) # -width à width du QRectangleF
+        self.__translationY_range = np.array([-500, 500]) # -height à height du QRectangleF
+        self.__rotation_range = np.array([0, 360])
+        self.__scaling_range = np.scale([0, 5]) # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__domains = gacvm.Domains(np.array([self.__translationX_range],
+                                       [self.__translationY_range],
+                                       [self.__rotation_range],
+                                       [self.__scaling_range]),
+                                       ('tx', 'ty', 'r', 's'))
 
     @property
     def box_width(self):
@@ -59,13 +67,14 @@ class GeometryOptimizationProblem:
     def domains(self):
         return self.__domains
 
+    # fitness
     def __call__(self, c):
         corner = c[0]
         return ((self.__box_height - (2 * corner)) * (self.__box_width - (2 * corner))) * corner
 
 
 if __name__ == '__main__':
-    open_box_problem = OpenBoxProblem(10, 5)
+    open_box_problem = GeometryOptimizationProblem()
     new_problem = gacvm.ProblemDefinition(open_box_problem.domains, open_box_problem)
 
     genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
