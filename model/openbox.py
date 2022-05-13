@@ -5,7 +5,7 @@ import sys
 
 
 class OpenBoxProblem:
-    def __init__(self, width, height):
+    def __init__(self, width=10, height=5):
         self.__box_width = width
         self.__box_height = height
         self.__corner_range = np.array([[0, self.__box_height / 2]])
@@ -35,17 +35,14 @@ class OpenBoxProblem:
     def domains(self):
         return self.__domains
 
-    def fitness(self, c):
+    def __call__(self, c):
         corner = c[0]
         return ((self.__box_height - (2 * corner)) * (self.__box_width - (2 * corner))) * corner
-
-    def __call__(self, c):
-        self.fitness(c)
 
 
 if __name__ == '__main__':
     open_box_problem = OpenBoxProblem(10, 5)
-    new_problem = gacvm.ProblemDefinition(open_box_problem.domains, open_box_problem.fitness)
+    new_problem = gacvm.ProblemDefinition(open_box_problem.domains, open_box_problem)
 
     genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
     genetic_algorithm.is_ready
