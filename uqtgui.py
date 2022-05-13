@@ -33,7 +33,7 @@ def area_from_QPolygonF(polygon):
     area = 0.
     prev_index = polygon.size() - 1
     for cur_index in range(polygon.size()):
-        area += (polygon[cur_index].x() - polygon[prev_index].x()) * (polygon[cur_index].y() + polygon[prev_index].y()) / 2.0; # trapezoidal integration around the shape
+        area += (polygon[cur_index].x() - polygon[prev_index].x()) * (polygon[cur_index].y() + polygon[prev_index].y()) / 2.0 # trapezoidal integration around the shape
         prev_index = cur_index
     return abs(area)
 
