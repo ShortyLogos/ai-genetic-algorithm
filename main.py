@@ -22,12 +22,11 @@ if __name__ == '__main__':
     # -------------------------------------------------------- par exemple
     # ga_app.add_crossover_strategy(my_awesome_strategy)
     # ga_app.add_mutation_strategy(ma_spectaculaire_strategie)
-    
 
     # ajout de vos panneaux de résolution de problème
     # -------------------------------------------------------- par exemple
     ga_app.add_solution_panel(boite_vue.BoxPanel())
-    ga_app.add_solution_panel(optimisation_geometrique.FormePanel())
+    ga_app.add_solution_panel(optimisation_geometrique.ShapePanel())
     # ga_app.add_solution_panel(probleme_3)
 
     ga_app.show()
