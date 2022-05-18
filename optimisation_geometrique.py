@@ -74,11 +74,6 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
 
         self._optimisation_problem = GeometryOptimizationProblem()
 
-    """
-        Le signal _update_problem doit utiliser les setter dans le GeometryOptimizationProblem
-        Doit créer un autre signal qui va modifier les setter dans le ShapeGenerator
-    """
-
     @Slot()
     def __shape_changed(self, choice):
         custom_position = self._shape_dropdown.count -1
@@ -96,7 +91,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
     @Slot()
     def __generate_obstacles(self):
         #Basically ça va faire une image vide avec juste les obstacles dessus qui sera utiliser ensuite pour le reste de la simulation
-        print("pleins de petits trous")
+        #J'imagine qu'il y a une partie qui doit être créer par et/ou envoyé au model vu que c'est les obstacles utilisé par la simulation
+        print("Pleins de petits trous")
         pass  
 
     @property
