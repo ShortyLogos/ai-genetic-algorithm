@@ -103,13 +103,19 @@ class GeometryOptimizationProblem:
 
 class ShapeGenerator:
     def __init__(self, points_count, r=0, R=1):
+        self.__shape = None
+        self.__points_count = 0
         self.__min_points_count = 3
         self.__max_points_count = 32
         self.__r = r
         self.__R = R
-        self.__points_count = 0
         self.points = points_count
-        self.__shape = self.generate_shape()
+        self.__poly_angle = (2 * np.pi) / self.__points_count
+        self.generate_shape()
+
+    @property
+    def shape(self):
+        return self.__shape
 
     @property
     def points_count(self):
@@ -119,41 +125,40 @@ class ShapeGenerator:
     def points_count(self, points_count):
         self.__points_count = umath.clamp(self.__min_points_count, points_count, self.__max_points_count)
 
+    @property
+    def r(self):
+        return self.__r
+    
+    @r.setter
+    def r(self, val):
+        self.__r = umath.clamp(0, val, 1)
+
     def generate_shape(self):
-        shape = None
         if self.__points_count == 4:
-            shape = QRectF(QPointF(-1, 1), QSize(1, 1))
+            self.__shape = QRectF(QPointF(-1, 1), QSize(1, 1))
         else:
-            if self.__r == 0:
-                self.generate_regular_polygon()
-            else:
-                GeometryOptimizationProblem.generate_concave_polygon(points_count, r, R)
-        return shape
+            self.__shape = QPolygonF()
+            self.generate_regular_polygon() if self.__r == 0 else self.generate_concave_polygon()
 
     def generate_regular_polygon(self):
-        poly = QPolygonF()
         for i in range(self.__points_count):
             theta = i * ((2 * np.pi) / self.__points_count)
             x = np.cos(theta)
             y = np.sin(theta)
-            poly.append(QPointF(x, y))
-        return poly
+            self.__shape.append(QPointF(x, y))
 
-    def generate_concave_polygon(points_count, r=0.5, R=1):
-        poly = QPolygonF()
-        for i in range(points_count):
-            segment = ((2 * np.pi) / points_count)
-            thetaR = i * segment
-            thetar = thetaR + (0.5 * segment)
+    def generate_concave_polygon(self):
+        for i in range(self.__points_count):
+            thetaR = self.__poly_angle
+            thetar = thetaR + (0.5 * self.__poly_angle)
 
-            xp = np.cos(thetaR) * R
-            yp = np.sin(thetaR) * R
-            poly.append(QPointF(xp, yp))
+            xp = np.cos(thetaR) * self.__R
+            yp = np.sin(thetaR) * self.__R
+            self.__shape.append(QPointF(xp, yp))
 
-            xc = np.cos(thetar) * r
-            yc = np.sin(thetar) * r
-            poly.append(QPointF(xc, yc))
-        return poly
+            xc = np.cos(thetar) * self.__r
+            yc = np.sin(thetar) * self.__r
+            self.__shape.append(QPointF(xc, yc))
 
 
 
