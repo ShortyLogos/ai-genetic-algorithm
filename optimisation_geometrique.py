@@ -3,13 +3,14 @@ from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
 from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpleImage
 
-from PySide6.QtCore import Qt, Signal, Slot
+from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QPushButton, QLabel
 from __feature__ import snake_case, true_property
 
 class ShapePanel(gaapp.QSolutionToSolvePanel):
     
     parameter_changed = Signal()
+    apply_custom = Signal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -18,6 +19,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         general_widget = QWidget()
         general_layout = QHBoxLayout(general_widget)
         self._shape_generator = ShapeGenerator()
+        self._optimisation_problem = GeometryOptimizationProblem()
 
         #### Parameters ####
         paramsBox = QGroupBox("Parameters")
@@ -43,15 +45,15 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
 
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
         paramsForm_layout.add_row('Numbers of vertex', vertex_layout)
-        self._vertex_widget.valueChanged.connect(self.parameter_changed)
+        self._vertex_widget.valueChanged.connect(self.apply_custom)
         
         self._concavity_widget, concavity_layout = create_scroll_real_value(min_concavity, min_concavity, max_concavity, 2)
         paramsForm_layout.add_row('Concavity Ratio', concavity_layout)
-        self._concavity_widget.valueChanged.connect(self.parameter_changed)
+        self._concavity_widget.valueChanged.connect(self.apply_custom)
         
         self._obstacle_widget, obstacle_layout = create_scroll_int_value(1, 30, 100)
         paramsForm_layout.add_row('Obstacle count', obstacle_layout)
-        self._obstacle_widget.valueChanged.connect(self.parameter_changed)
+        self._obstacle_widget.valueChanged.connect(self.apply_custom)
         
         button_obstacle = QPushButton("Generate obstacles")
         button_obstacle.clicked.connect(self.__generate_obstacles)
@@ -66,21 +68,29 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._image = QSimpleImage()
         visuBox_layout.add_widget(self._image)
 
+
+        #### General layout and connections ####
         general_layout.add_widget(paramsBox)
         general_layout.add_widget(visuBox)
         self._main_layout.add_widget(general_widget)
-
+        
         self.parameter_changed.connect(self._update_problem)
-
-        self._optimisation_problem = GeometryOptimizationProblem()
+        self.apply_custom.connect(self.__apply_custom)
 
     @Slot()
     def __shape_changed(self, choice):
+        signal_blocker = QSignalBlocker(self)
         custom_position = self._shape_dropdown.count -1
         if choice != -1 and choice != custom_position:
             shape = self._shape_dropdown.item_data(choice)
             self._vertex_widget.set_value(shape[0])
             self._concavity_widget.set_real_value(shape[1])
+        signal_blocker.unblock()
+
+    @Slot()
+    def __apply_custom(self):
+        self._shape_dropdown.set_current_index(self._shape_dropdown.count-1)
+        self.parameter_changed.emit()
 
     @Slot()
     def _update_problem(self):
