@@ -103,15 +103,17 @@ class GeometryOptimizationProblem:
 
 
 class ShapeGenerator:
-    def __init__(self, points_count, r=0, R=1):
+    def __init__(self, vertex_count, r=0, R=1):
         self.__shape = None
-        self.__points_count = 0
-        self.__min_points_count = 3
-        self.__max_points_count = 32
+        self.__vertex_count = 0
+        self.__min_vertex_count = 3
+        self.__max_vertex_count = 32
+        self.__min_concavity = 0
+        self.__max_concavity = 1
         self.__r = r
         self.__R = R
-        self.points_count = points_count
-        self.__poly_angle = (2 * np.pi) / self.__points_count
+        self.vertex_count = vertex_count
+        self.__poly_angle = (2 * np.pi) / self.__vertex_count
         self.generate_shape()
 
     @property
@@ -120,11 +122,11 @@ class ShapeGenerator:
 
     @property
     def points_count(self):
-        return self.__points_count
+        return self.__vertex_count
 
     @points_count.setter
     def points_count(self, points_count):
-        self.__points_count = umath.clamp(self.__min_points_count, points_count, self.__max_points_count)
+        self.__vertex_count = umath.clamp(self.__min_vertex_count, points_count, self.__max_vertex_count)
 
     @property
     def r(self):
@@ -132,23 +134,23 @@ class ShapeGenerator:
 
     @r.setter
     def r(self, val):
-        self.__r = umath.clamp(0, val, 1)
+        self.__r = umath.clamp(self.__min_concavity, val, self.__max_concavity)
 
     def generate_shape(self):
         self.__shape = QPolygonF()
         self.generate_regular_polygon() if self.__r == 0 else self.generate_concave_polygon()
 
     def generate_regular_polygon(self):
-        self.__shape.resize(self.__points_count)
-        for i in range(self.__points_count):
-            theta = i * ((2 * np.pi) / self.__points_count)
+        self.__shape.resize(self.__vertex_count)
+        for i in range(self.__vertex_count):
+            theta = i * ((2 * np.pi) / self.__vertex_count)
             x = np.cos(theta)
             y = np.sin(theta)
             self.__shape[i] = QPointF(x, y)
 
     def generate_concave_polygon(self):
-        self.__shape.resize(self.__points_count * 2)
-        for i in range(self.__points_count):
+        self.__shape.resize(self.__vertex_count * 2)
+        for i in range(self.__vertex_count):
             thetaR = self.__poly_angle
             thetar = thetaR + (0.5 * self.__poly_angle)
 
