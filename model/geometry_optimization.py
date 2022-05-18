@@ -50,7 +50,6 @@ class GeometryOptimizationProblem:
         self.transform = QTransform()
         self.generate_obstacles()
 
-
     @property
     def surface(self):
         return self.__surface
@@ -102,6 +101,62 @@ class GeometryOptimizationProblem:
         # SINON return 0
 
 
+class ShapeGenerator:
+    def __init__(self, points_count, r=0, R=1):
+        self.__min_points_count = 3
+        self.__max_points_count = 32
+        self.__r = r
+        self.__R = R
+        self.__points_count = 0
+        self.points = points_count
+        self.__shape = self.generate_shape()
+
+    @property
+    def points_count(self):
+        return self.__points_count
+
+    @points_count.setter
+    def points_count(self, points_count):
+        self.__points_count = umath.clamp(self.__min_points_count, points_count, self.__max_points_count)
+
+    def generate_shape(self):
+        shape = None
+        if self.__points_count == 4:
+            shape = QRectF(QPointF(-1, 1), QSize(1, 1))
+        else:
+            if self.__r == 0:
+                self.generate_regular_polygon()
+            else:
+                GeometryOptimizationProblem.generate_concave_polygon(points_count, r, R)
+        return shape
+
+    def generate_regular_polygon(self):
+        poly = QPolygonF()
+        for i in range(self.__points_count):
+            theta = i * ((2 * np.pi) / self.__points_count)
+            x = np.cos(theta)
+            y = np.sin(theta)
+            poly.append(QPointF(x, y))
+        return poly
+
+    def generate_concave_polygon(points_count, r=0.5, R=1):
+        poly = QPolygonF()
+        for i in range(points_count):
+            segment = ((2 * np.pi) / points_count)
+            thetaR = i * segment
+            thetar = thetaR + (0.5 * segment)
+
+            xp = np.cos(thetaR) * R
+            yp = np.sin(thetaR) * R
+            poly.append(QPointF(xp, yp))
+
+            xc = np.cos(thetar) * r
+            yc = np.sin(thetar) * r
+            poly.append(QPointF(xc, yc))
+        return poly
+
+
+
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
     # CRÉATION DES OBJETS QT
@@ -119,4 +174,5 @@ if __name__ == '__main__':
     # genetic_algorithm.is_ready
     # genetic_algorithm.evolve()
     # genetic_algorithm.population
-    pass
+
+    print(GeometryOptimizationProblem.generate_regular_polygon(3))
