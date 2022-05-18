@@ -16,8 +16,7 @@ import sys
 # 3. Rotation (1 paramètre puisque en 2D)
 # 4. Homothétie (scaling) (Égale en X et en Y pour conserver la forme)
 
-# On a pas un problème d'image.
-# Un problème de géométrie.
+# Ce n'est pas un problème d'image, mais de géométrie!
 
 # On a trois primitives géométriques : rectangle (canevas), liste de points (obstacles), polygone (shape à faire fitter)
 # Est-ce que ce polygone est à l'intersection d'un obstacle ?
@@ -35,17 +34,17 @@ import sys
 
 class GeometryOptimizationProblem:
     def __init__(self, surface, polygon, obstacles_count):
-        self.__polygon = polygon # QPolygonF
         self.__surface = surface # QRectangleF
+        self.__polygon = polygon # QPolygonF
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = np.array([-500, 500]) # -width à width du QRectangleF
-        self.__translationY_range = np.array([-500, 500]) # -height à height du QRectangleF
-        self.__rotation_range = np.array([0, 360])
-        self.__scaling_range = np.scale([0, 5]) # Récupérer des valeurs de QRectangleF pour ce calcul ?
-        self.__domains = gacvm.Domains(np.array([self.__translationX_range],
-                                       [self.__translationY_range],
-                                       [self.__rotation_range],
-                                       [self.__scaling_range]),
+        self.__translationX_range = (0., surface.width()) # -width à width du QRectangleF
+        self.__translationY_range = (0., surface.height()) # -height à height du QRectangleF
+        self.__rotation_range = (0., 360.)
+        self.__scaling_range = (0., 5.) # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__domains = gacvm.Domains(np.array([self.__translationX_range,
+                                       self.__translationY_range,
+                                       self.__rotation_range,
+                                       self.__scaling_range], float),
                                        ('tx', 'ty', 'r', 's'))
         self.__obstacles = []
         self.transform = QTransform()
@@ -84,8 +83,8 @@ class GeometryOptimizationProblem:
         self.__obstacles.clear()
         for _ in range(self.__obstacles_count):
             p = QPointF()
-            p.setX(p.x() + random.uniform(0, self.surface.width))
-            p.setY(p.y() + random.uniform(0, self.surface.height))
+            p.setX(p.x() + random.uniform(0, self.surface.width()))
+            p.setY(p.y() + random.uniform(0, self.surface.height()))
             self.__obstacles.append(p)
 
     # fitness
@@ -95,7 +94,7 @@ class GeometryOptimizationProblem:
         self.transform.translate(dimensions[0], dimensions[1])
         self.transform.rotate(dimensions[2])
         self.transform.scale(dimensions[3], dimensions[3])
-        self.transform.map(self.polygon)
+        # self.transform.map(self.polygon)
         # 1. transformation
         # 2. forme.checkPoints(point)
         # 3. canvas.intersects(forme)
@@ -103,12 +102,21 @@ class GeometryOptimizationProblem:
         # SINON return 0
 
 
+# À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
-    open_box_problem = GeometryOptimizationProblem()
-    new_problem = gacvm.ProblemDefinition(open_box_problem.domains, open_box_problem)
+    # CRÉATION DES OBJETS QT
+    surface = QRectF()
+
+    # Valeurs imposées à titre pratique
+    # comme dans l'exemple du professeur
+    surface.setWidth(500)
+    surface.setHeight(250)
+
+    geometry_optimization_problem = GeometryOptimizationProblem(surface, 5, 5)
+    new_problem = gacvm.ProblemDefinition(geometry_optimization_problem.domains, geometry_optimization_problem)
 
     genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    genetic_algorithm.is_ready
-    genetic_algorithm.evolve()
-    genetic_algorithm.population
+    # genetic_algorithm.is_ready
+    # genetic_algorithm.evolve()
+    # genetic_algorithm.population
     pass

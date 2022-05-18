@@ -50,6 +50,7 @@ class OpenBoxProblem:
         return ((self.__box_height - (2 * corner)) * (self.__box_width - (2 * corner))) * corner
 
 
+# À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
     open_box_problem = OpenBoxProblem(10, 5)
     new_problem = gacvm.ProblemDefinition(open_box_problem.domains, open_box_problem)
