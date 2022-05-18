@@ -8,6 +8,7 @@ from PySide6 import *
 import model.umath as umath
 import sys
 
+
 # Quelle est la transformation?
 
 # Problème à 4 dimensions :
@@ -34,17 +35,17 @@ import sys
 
 class GeometryOptimizationProblem:
     def __init__(self, surface, polygon, obstacles_count):
-        self.__surface = surface # QRectangleF
-        self.__polygon = polygon # QPolygonF
+        self.__surface = surface  # QRectangleF
+        self.__polygon = polygon  # QPolygonF
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = (0., surface.width()) # -width à width du QRectangleF
-        self.__translationY_range = (0., surface.height()) # -height à height du QRectangleF
+        self.__translationX_range = (0., surface.width())  # -width à width du QRectangleF
+        self.__translationY_range = (0., surface.height())  # -height à height du QRectangleF
         self.__rotation_range = (0., 360.)
-        self.__scaling_range = (0., 5.) # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__scaling_range = (0., 5.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
         self.__domains = gacvm.Domains(np.array([self.__translationX_range,
-                                       self.__translationY_range,
-                                       self.__rotation_range,
-                                       self.__scaling_range], float),
+                                                 self.__translationY_range,
+                                                 self.__rotation_range,
+                                                 self.__scaling_range], float),
                                        ('tx', 'ty', 'r', 's'))
         self.__obstacles = []
         self.transform = QTransform()
@@ -109,7 +110,7 @@ class ShapeGenerator:
         self.__max_points_count = 32
         self.__r = r
         self.__R = R
-        self.points = points_count
+        self.points_count = points_count
         self.__poly_angle = (2 * np.pi) / self.__points_count
         self.generate_shape()
 
@@ -128,56 +129,60 @@ class ShapeGenerator:
     @property
     def r(self):
         return self.__r
-    
+
     @r.setter
     def r(self, val):
         self.__r = umath.clamp(0, val, 1)
 
     def generate_shape(self):
-        if self.__points_count == 4:
-            self.__shape = QRectF(QPointF(-1, 1), QSize(1, 1))
-        else:
-            self.__shape = QPolygonF()
-            self.generate_regular_polygon() if self.__r == 0 else self.generate_concave_polygon()
+        self.__shape = QPolygonF()
+        self.generate_regular_polygon() if self.__r == 0 else self.generate_concave_polygon()
 
     def generate_regular_polygon(self):
+        self.__shape.resize(self.__points_count)
         for i in range(self.__points_count):
             theta = i * ((2 * np.pi) / self.__points_count)
             x = np.cos(theta)
             y = np.sin(theta)
-            self.__shape.append(QPointF(x, y))
+            self.__shape[i] = QPointF(x, y)
 
     def generate_concave_polygon(self):
+        self.__shape.resize(self.__points_count * 2)
         for i in range(self.__points_count):
             thetaR = self.__poly_angle
             thetar = thetaR + (0.5 * self.__poly_angle)
 
             xp = np.cos(thetaR) * self.__R
             yp = np.sin(thetaR) * self.__R
-            self.__shape.append(QPointF(xp, yp))
+            self.__shape[i * 2] = QPointF(xp, yp)
 
             xc = np.cos(thetar) * self.__r
             yc = np.sin(thetar) * self.__r
-            self.__shape.append(QPointF(xc, yc))
-
+            self.__shape[i * 2 + 1] = QPointF(xc, yc)
 
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
-    # CRÉATION DES OBJETS QT
-    surface = QRectF()
+    sg = ShapeGenerator(3)
+    sg = ShapeGenerator(4)
+    sg = ShapeGenerator(5)
+    sg = ShapeGenerator(6)
+    pass
 
+    # CRÉATION DES OBJETS QT
+    # surface = QRectF()
+    #
     # Valeurs imposées à titre pratique
     # comme dans l'exemple du professeur
-    surface.setWidth(500)
-    surface.setHeight(250)
-
-    geometry_optimization_problem = GeometryOptimizationProblem(surface, 5, 5)
-    new_problem = gacvm.ProblemDefinition(geometry_optimization_problem.domains, geometry_optimization_problem)
-
-    genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
+    # surface.setWidth(500)
+    # surface.setHeight(250)
+    #
+    # geometry_optimization_problem = GeometryOptimizationProblem(surface, 5, 5)
+    # new_problem = gacvm.ProblemDefinition(geometry_optimization_problem.domains, geometry_optimization_problem)
+    #
+    # genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
     # genetic_algorithm.is_ready
     # genetic_algorithm.evolve()
     # genetic_algorithm.population
-
-    print(GeometryOptimizationProblem.generate_regular_polygon(3))
+    #
+    # Test ShapeGenerator
