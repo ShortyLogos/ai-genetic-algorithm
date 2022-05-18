@@ -52,8 +52,8 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
 
     @Slot()
     def _update_adapter(self):
-        self._open_box_problem.box_width = (self._width_widget.value+10)/10
-        self._open_box_problem.box_height = (self._height_widget.value+10)/10
+        self._open_box_problem.box_width = self._width_widget.get_real_value()
+        self._open_box_problem.box_height = self._height_widget.get_real_value()
         
     @property
     def name(self):
@@ -93,29 +93,3 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
-
-
-
-
-
-
-"""
-
-Voir le dessin avec les calculs et tout de ses exemples.
-
-Faire boucle for i in range(n) n=nbr côtés. 
-Calculé l'angle theta = 2pie/n. x=cos(théta) et y=sin(théta) 
-
-Pour étoiles: 
-faire boucle for i in range(n) n=nbr côtés
-(calculer 2 "thétas" pour coin interne et externe)
-théta R = i*2pie/n => Coin externe
-théta r = théta R + 1/2*2pie/n => Coin interne
-x-pointe= cost R
-y-pointe= sin R
-append(xR, yR)
-xc= (cost Théta r) * r
-yc = (sin Théta r) * r
-append(xc,yc)
-
-"""
