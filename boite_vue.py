@@ -1,10 +1,10 @@
 import gaapp
 from model.gacvm import Parameters, ProblemDefinition, GeneticAlgorithm
 from model.openbox import OpenBoxProblem
-from uqtwidgets import create_scroll_real_value
+from uqtwidgets import create_scroll_real_value, QSimpleImage
 
 from PySide6.QtCore import Qt, Signal, Slot
-from PySide6.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QLabel
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QLabel
 from __feature__ import snake_case, true_property
 
 class BoxPanel(gaapp.QSolutionToSolvePanel):
@@ -23,19 +23,22 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         precision = 1
 
         paramsBox = QGroupBox("Parameters")
-        paramsBox_layout = QFormLayout(paramsBox)
+        paramsBox_layout = QVBoxLayout(paramsBox)
+        form_widget = QWidget()
+        paramsForm_layout = QFormLayout(form_widget)
         self._width_widget, width_layout = create_scroll_real_value(minValue, 10, maxValue, precision)
         self._height_widget, height_layout = create_scroll_real_value(minValue, 5, maxValue, precision)
-        paramsBox_layout.add_row('Width', width_layout)
-        paramsBox_layout.add_row('Height', height_layout)
+        paramsForm_layout.add_row('Width', width_layout)
+        paramsForm_layout.add_row('Height', height_layout)
         self._width_widget.valueChanged.connect(self.parameter_changed)
         self._height_widget.valueChanged.connect(self.parameter_changed)
+        paramsBox_layout.add_stretch()
+        paramsBox_layout.add_widget(form_widget)
+        paramsBox_layout.add_stretch()
 
         visuBox = QGroupBox("Visualization")
         visuBox_layout = QHBoxLayout(visuBox)
-        self._image = QLabel()
-        self._image.style_sheet = 'QLabel { background-color : #313D4A; padding : 10px 10px 10px 10px; }'
-        self._image.alignment = Qt.AlignCenter
+        self._image = QSimpleImage()
         visuBox_layout.add_widget(self._image)
 
         general_layout.add_widget(paramsBox)
@@ -90,3 +93,29 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
+
+
+
+
+
+
+"""
+
+Voir le dessin avec les calculs et tout de ses exemples.
+
+Faire boucle for i in range(n) n=nbr côtés. 
+Calculé l'angle theta = 2pie/n. x=cos(théta) et y=sin(théta) 
+
+Pour étoiles: 
+faire boucle for i in range(n) n=nbr côtés
+(calculer 2 "thétas" pour coin interne et externe)
+théta R = i*2pie/n => Coin externe
+théta r = théta R + 1/2*2pie/n => Coin interne
+x-pointe= cost R
+y-pointe= sin R
+append(xR, yR)
+xc= (cost Théta r) * r
+yc = (sin Théta r) * r
+append(xc,yc)
+
+"""
