@@ -34,12 +34,14 @@ import sys
 # Forme normalisée -> 0 à 1 de chaque côté
 
 class GeometryOptimizationProblem:
-    def __init__(self, surface, polygon, obstacles_count):
-        self.__surface = surface  # QRectangleF
-        self.__polygon = polygon  # QPolygonF
+
+
+    def __init__(self, surface_width=500, surface_height=250, obstacles_count=30):
+        self.__surface = QRectF(0, 0, surface_width, surface_height)
+        self.__polygon = None
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = (0., surface.width())  # -width à width du QRectangleF
-        self.__translationY_range = (0., surface.height())  # -height à height du QRectangleF
+        self.__translationX_range = (0., self.__surface.width())  # -width à width du QRectangleF
+        self.__translationY_range = (0., self.__surface.height())  # -height à height du QRectangleF
         self.__rotation_range = (0., 360.)
         self.__scaling_range = (0., 5.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
         self.__domains = gacvm.Domains(np.array([self.__translationX_range,
@@ -73,7 +75,7 @@ class GeometryOptimizationProblem:
 
     @obstacles_count.setter
     def obstacles_count(self, value):
-        self.__obstacles_count = value
+        self.__obstacles_count = umath.clamp(1, value, 100)
 
     @property
     def domains(self):
@@ -131,7 +133,7 @@ class ShapeGenerator:
     @property
     def max_vertex_count(self):
         return self.__max_vertex_count
-    
+
     @property
     def min_concavity(self):
         return self.__min_concavity
