@@ -85,8 +85,8 @@ class GeometryOptimizationProblem:
         self.__obstacles.clear()
         for _ in range(self.__obstacles_count):
             p = QPointF()
-            p.setX(p.x() + random.uniform(0, self.surface.width()))
-            p.setY(p.y() + random.uniform(0, self.surface.height()))
+            p.set_x(p.x() + random.uniform(0, self.surface.width()))
+            p.set_y(p.y() + random.uniform(0, self.surface.height()))
             self.__obstacles.append(p)
 
     # fitness
