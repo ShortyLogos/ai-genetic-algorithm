@@ -103,7 +103,7 @@ class GeometryOptimizationProblem:
 
 
 class ShapeGenerator:
-    def __init__(self, vertex_count, r=0, R=1):
+    def __init__(self, vertex_count=3, r=0, R=1):
         self.__shape = None
         self.__vertex_count = 0
         self.__min_vertex_count = 3
@@ -121,12 +121,28 @@ class ShapeGenerator:
         return self.__shape
 
     @property
-    def points_count(self):
+    def vertex_count(self):
         return self.__vertex_count
 
-    @points_count.setter
-    def points_count(self, points_count):
-        self.__vertex_count = umath.clamp(self.__min_vertex_count, points_count, self.__max_vertex_count)
+    @property
+    def min_vertex_count(self):
+        return self.__min_vertex_count
+
+    @property
+    def max_vertex_count(self):
+        return self.__max_vertex_count
+    
+    @property
+    def min_concavity(self):
+        return self.__min_concavity
+
+    @property
+    def max_concavity(self):
+        return self.__max_concavity
+
+    @vertex_count.setter
+    def vertex_count(self, vertex_count):
+        self.__vertex_count = umath.clamp(self.__min_vertex_count, vertex_count, self.__max_vertex_count)
 
     @property
     def r(self):
