@@ -69,19 +69,43 @@ class GeometryOptimizationProblem:
             p.set_y(p.y() + random.uniform(0, self.surface.height()))
             self.__obstacles.append(p)
 
+    def calculate_area(self, poly):
+        poly_area = 0.
+        for i in range(poly.size()):
+            p1 = poly[i]
+            p2 = poly[(i + 1) % poly.size()]
+            d = p1.x() * p2.y() - p2.x() * p1.y()
+            poly_area += d
+        return abs(poly_area) / 2
+
     # fitness
     def __call__(self, dimensions):
-        # corner = c[0]
-        # return ((self.__box_height - (2 * corner)) * (self.__box_width - (2 * corner))) * corner
-        self.transform.translate(dimensions[0], dimensions[1])
-        self.transform.rotate(dimensions[2])
-        self.transform.scale(dimensions[3], dimensions[3])
-        # self.transform.map(self.polygon)
         # 1. transformation
         # 2. forme.checkPoints(point)
         # 3. canvas.intersects(forme)
         # IF 2 et 3 FALSE alors return AIRE
         # SINON return 0
+
+        # mettre le point d'origine des transformations au centre?!
+
+        poly_area = 0
+        free_zone = True
+        self.transform.translate(dimensions[0], dimensions[1])
+        self.transform.rotate(dimensions[2])
+        self.transform.scale(dimensions[3], dimensions[3])
+        self.transform.map(self.__polygon)
+        for obstacle in self.__obstacles:
+            if self.__polygon.containsPoint(obstacle):
+                free_zone = False
+                break
+        if free_zone:
+            for vertex in self.__polygon:
+                if self.__surface.contains(vertex) is False:
+                    free_zone = False
+                    break
+        if free_zone:
+            poly_area = self.calculate_area(self.__polygon)
+        return poly_area
 
 
 class ShapeGenerator:
@@ -169,7 +193,7 @@ if __name__ == '__main__':
     sg = ShapeGenerator(6)
 
     gop = GeometryOptimizationProblem()
-    sg = ShapeGenerator(3)
+    gop.polygon = ShapeGenerator(3).shape
     pass
     # CRÉATION DES OBJETS QT
     # surface = QRectF()
@@ -188,3 +212,9 @@ if __name__ == '__main__':
     # genetic_algorithm.population
     #
     # Test ShapeGenerator
+
+
+### RÉFÉRENCES ###
+
+## Calcul de l'aire d'un QPolygonF
+# https://stackoverflow.com/questions/67558984/how-calculate-qpolygon-area
