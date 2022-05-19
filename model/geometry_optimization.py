@@ -16,17 +16,16 @@ class GeometryOptimizationProblem:
         self.__surface = QRectF(0, 0, surface_width, surface_height)
         self.__polygon = None
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = (0., self.__surface.width())  # -width à width du QRectangleF
-        self.__translationY_range = (0., self.__surface.height())  # -height à height du QRectangleF
+        self.__translationX_range = (-self.__surface.width(), self.__surface.width())  # -width à width du QRectangleF
+        self.__translationY_range = (-self.__surface.height(), self.__surface.height())  # -height à height du QRectangleF
         self.__rotation_range = (0., 360.)
-        self.__scaling_range = (0., 10.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__scaling_range = (0.1, 10.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
         self.__domains = gacvm.Domains(np.array([self.__translationX_range,
                                                  self.__translationY_range,
                                                  self.__rotation_range,
                                                  self.__scaling_range], float),
                                        ('tx', 'ty', 'r', 's'))
         self.__obstacles = []
-        self.transform = QTransform()
         self.generate_obstacles()
 
     @property
@@ -90,21 +89,22 @@ class GeometryOptimizationProblem:
 
         poly_area = 0
         free_zone = True
-        self.transform.translate(dimensions[0], dimensions[1])
-        self.transform.rotate(dimensions[2])
-        self.transform.scale(dimensions[3], dimensions[3])
-        self.transform.map(self.__polygon)
+        t = QTransform()
+        t.translate(dimensions[0], dimensions[1])
+        t.rotate(dimensions[2])
+        t.scale(dimensions[3], dimensions[3])
+        modified_poly = t.map(self.__polygon)
         for obstacle in self.__obstacles:
-            if self.__polygon.containsPoint(obstacle):
+            if modified_poly.contains_point(obstacle, Qt.OddEvenFill):
                 free_zone = False
                 break
         if free_zone:
-            for vertex in self.__polygon:
+            for vertex in modified_poly:
                 if self.__surface.contains(vertex) is False:
                     free_zone = False
                     break
         if free_zone:
-            poly_area = self.calculate_area(self.__polygon)
+            poly_area = self.calculate_area(modified_poly)
         return poly_area
 
 
@@ -194,6 +194,13 @@ if __name__ == '__main__':
 
     gop = GeometryOptimizationProblem()
     gop.polygon = ShapeGenerator(3).shape
+
+    new_problem = gacvm.ProblemDefinition(gop.domains, gop)
+
+    genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
+    genetic_algorithm.is_ready
+    genetic_algorithm.evolve()
+    genetic_algorithm.population_fitness
     pass
     # CRÉATION DES OBJETS QT
     # surface = QRectF()
