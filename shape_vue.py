@@ -3,8 +3,9 @@ from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
 from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpleImage
 
-from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
+from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker, QPoint
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QPushButton, QLabel
+from PySide6.QtGui import (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor)
 from __feature__ import snake_case, true_property
 
 class ShapePanel(gaapp.QSolutionToSolvePanel):
@@ -27,8 +28,11 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         form_widget = QWidget()
         paramsForm_layout = QFormLayout(form_widget)
 
-        paramsForm_layout.add_row('Width', QLabel('500'))
-        paramsForm_layout.add_row('Height', QLabel('250'))      
+        self._image_width = 500
+        self._image_height = 250
+
+        paramsForm_layout.add_row('Width', QLabel(str(self._image_width)))
+        paramsForm_layout.add_row('Height', QLabel(str(self._image_height)))      
         
         self._shape_dropdown = QComboBox()
         self._shape_dropdown.add_item("Triangle",[3, 0])
@@ -65,8 +69,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         #### Visualization ####
         visuBox = QGroupBox("Visualization")
         visuBox_layout = QHBoxLayout(visuBox)
-        self._image = QSimpleImage()
-        visuBox_layout.add_widget(self._image)
+        self._image_visualization = QSimpleImage()
+        visuBox_layout.add_widget(self._image_visualization)
 
 
         #### General layout and connections ####
@@ -102,8 +106,14 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
     def __generate_obstacles(self):
         #Basically ça va faire une image vide avec juste les obstacles dessus qui sera utiliser ensuite pour le reste de la simulation
         #J'imagine qu'il y a une partie qui doit être créer par et/ou envoyé au model vu que c'est les obstacles utilisé par la simulation
-        print("Pleins de petits trous")
-        pass  
+        self._optimisation_problem.generate_obstacles()
+        qimage = QImage(self._image_width, self._image_height, QImage.Format_RGB32)
+        for obstacle in self._optimisation_problem.obstacles:
+            x = obstacle.x()
+            y = obstacle.y()
+            qpoint = QPoint(x, y)
+            qimage.set_pixel(qpoint, QColor(0, 0, 255, 255).red())
+        self._image_visualization.image = qimage
 
     @property
     def name(self):
