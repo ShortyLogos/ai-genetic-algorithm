@@ -1,40 +1,16 @@
 import random
 
+import sys
 import numpy as np
 import model.gacvm as gacvm
+import model.umath as umath
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
-from PySide6 import *
-import model.umath as umath
-import sys
 
+from __feature__ import snake_case, true_property
 
-# Quelle est la transformation?
-
-# Problème à 4 dimensions :
-# 1. TranslationX
-# 2. TranslationY
-# 3. Rotation (1 paramètre puisque en 2D)
-# 4. Homothétie (scaling) (Égale en X et en Y pour conserver la forme)
-
-# Ce n'est pas un problème d'image, mais de géométrie!
-
-# On a trois primitives géométriques : rectangle (canevas), liste de points (obstacles), polygone (shape à faire fitter)
-# Est-ce que ce polygone est à l'intersection d'un obstacle ?
-# Pas de numpy à tour de bras.
-# Qt -> On utilise des librairies
-
-# Il faudra le présenter à l'écran. Faire le lien entre ce qu'on et ce qu'on a de besoin.
-# Matrices de transformation : changement de référentiel
-# Tout ce qui se passe dans la carte vidéo sert avant tout à faire le calcul matriciel
-# QTransform.map -> On y passe notre polygone et ça nous retourne un nouveau polygone transformé et c'est lui qu'on utilise
-# UQTGui pour aire et périmètre du polygone
-
-# Référentiel -> Centre de la forme
-# Forme normalisée -> 0 à 1 de chaque côté
 
 class GeometryOptimizationProblem:
-
 
     def __init__(self, surface_width=500, surface_height=250, obstacles_count=30):
         self.__surface = QRectF(0, 0, surface_width, surface_height)
@@ -43,7 +19,7 @@ class GeometryOptimizationProblem:
         self.__translationX_range = (0., self.__surface.width())  # -width à width du QRectangleF
         self.__translationY_range = (0., self.__surface.height())  # -height à height du QRectangleF
         self.__rotation_range = (0., 360.)
-        self.__scaling_range = (0., 5.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__scaling_range = (0., 10.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
         self.__domains = gacvm.Domains(np.array([self.__translationX_range,
                                                  self.__translationY_range,
                                                  self.__rotation_range,
@@ -60,6 +36,10 @@ class GeometryOptimizationProblem:
     @surface.setter
     def surface(self, new_surface):
         self.__surface = new_surface
+
+    @property
+    def obstacles(self):
+        return self.__obstacles
 
     @property
     def polygon(self):
@@ -183,12 +163,14 @@ class ShapeGenerator:
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
-    sg = ShapeGenerator(3)
+
     sg = ShapeGenerator(4)
     sg = ShapeGenerator(5)
     sg = ShapeGenerator(6)
-    pass
 
+    gop = GeometryOptimizationProblem()
+    sg = ShapeGenerator(3)
+    pass
     # CRÉATION DES OBJETS QT
     # surface = QRectF()
     #
