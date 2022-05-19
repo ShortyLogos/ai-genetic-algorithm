@@ -2,8 +2,9 @@
 import sys
 
 import gaapp
-import boite_vue
-import optimisation_geometrique
+import box_vue
+import shape_vue
+import community_vue
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QFileDialog
@@ -25,9 +26,9 @@ if __name__ == '__main__':
 
     # ajout de vos panneaux de résolution de problème
     # -------------------------------------------------------- par exemple
-    ga_app.add_solution_panel(boite_vue.BoxPanel())
-    ga_app.add_solution_panel(optimisation_geometrique.ShapePanel())
-    # ga_app.add_solution_panel(probleme_3)
+    ga_app.add_solution_panel(box_vue.BoxPanel())
+    ga_app.add_solution_panel(shape_vue.ShapePanel())
+    ga_app.add_solution_panel(community_vue.CommunityPanel())
 
     ga_app.show()
     sys.exit(app.exec_())
