@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 import numpy as np
 
-import model.umath as umath
+import umath as umath
 
 
 #    ____                        _

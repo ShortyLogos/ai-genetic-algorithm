@@ -1,0 +1,67 @@
+SocioPoliticalContext()
+life_expectancy
+economic_health
+
+CommunityContext(socio_political(), community_size)
+
+Ici, une moyenne pondérée
+**
+Health: 2000
+Public Hygiena: 500
+**
+
+**
+Plus simple qu'une moyenne pondérée plutôt:
+Une approche de coût global/satisfaction globale
+Maximer la satisfaction globale
+
+BEAUCOUP DE MOYENNE PONDÉRÉE
+**
+
+NUMPY {}
+
+Commencer par une petite matrice de métiers,
+4 métiers, 3 colonnes, on debug
+Après on expand
+
+
+NOTRE FONCTION DE FITNESS : # des calculs de matrice tout simplement
+recalibrer en pourcentage
+finalement en nombre
+créer calcul de pondération global
+
+
+# HINTS :
+Fitness doit considérer qu'on a des entiers, pas des floating points
+Faire les arrondissements de façon telle qu'on a un respect de la taille de la communauté
+
+Deux approches possibles:
+
+#1
+2-3-4-5 dimensions, ok, moins bien pour nous
+On calcule une dimension seulement, et on soustrait les autres dimensions dont la valeur est déjà établie
+Pas bon pour nous
+
+#2
+On a 17 dimensions, et on normalise ces valeurs en fonction d'une valeur nominale
+On prend tous les nombres générés (0-1), aucune incidence.
+On a un score .2 pour artiste, .5 pour customer service, etc...
+Faire la somme, exemple : 13.84, 17.7
+À chaque fois qu'on fait évoluer ça, des sommes variables.
+Pas la valeur en soi intéressante, mais la valeur relative
+Recalibrer par la suite en pourcentage la valeur nominale de chacun
+
+Somme de 9.7
+Score de .3 pour artiste, .3 / 9.7 = 0.0309 = 3% d'artistes
+Si on a une taille de 1000 individus, 30 artistes
+
+Problème avec cette approche : des problèmes toujours relatives
+Les mutations peuvent déstabiliser la convergence. On a besoin
+d'une convergence stable dans notre modèle.
+Demeure la meilleure approche pour notre problème.
+
+NUMPY :
+
+
+
+Algorithm NEAT
