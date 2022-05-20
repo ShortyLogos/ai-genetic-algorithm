@@ -75,7 +75,6 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._image_visualization = QSimpleImage()
         visuBox_layout.add_widget(self._image_visualization)
 
-
         #### General layout and connections ####
         general_layout.add_widget(paramsBox)
         general_layout.add_widget(visuBox)
@@ -92,6 +91,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
             shape = self._shape_dropdown.item_data(choice)
             self._vertex_widget.set_value(shape[0])
             self._concavity_widget.set_real_value(shape[1])
+        self._update_problem()
         signal_blocker.unblock()
 
     @Slot()
