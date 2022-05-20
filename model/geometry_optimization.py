@@ -2,8 +2,8 @@ import random
 
 import sys
 import numpy as np
-import model.gacvm as gacvm
-import model.umath as umath
+import gacvm as gacvm
+import umath as umath
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 
@@ -12,14 +12,14 @@ from __feature__ import snake_case, true_property
 
 class GeometryOptimizationProblem:
 
-    def __init__(self, surface_width=500, surface_height=250, obstacles_count=30):
+    def __init__(self, surface_width=500, surface_height=250, obstacles_count=100):
         self.__surface = QRectF(0, 0, surface_width, surface_height)
         self.__polygon = None
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = (-self.__surface.width(), self.__surface.width())  # -width à width du QRectangleF
-        self.__translationY_range = (-self.__surface.height(), self.__surface.height())  # -height à height du QRectangleF
+        self.__translationX_range = (0., self.__surface.width())
+        self.__translationY_range = (0., self.__surface.height())
         self.__rotation_range = (0., 360.)
-        self.__scaling_range = (0.1, 10.)  # Récupérer des valeurs de QRectangleF pour ce calcul ?
+        self.__scaling_range = (0., self.scaling_upper_bracket(surface_width, surface_height))
         self.__domains = gacvm.Domains(np.array([self.__translationX_range,
                                                  self.__translationY_range,
                                                  self.__rotation_range,
@@ -60,6 +60,9 @@ class GeometryOptimizationProblem:
     def domains(self):
         return self.__domains
 
+    def scaling_upper_bracket(self, surface_width, surface_height):
+        return max(surface_width, surface_height)/2
+
     def generate_obstacles(self):
         self.__obstacles.clear()
         for _ in range(self.__obstacles_count):
@@ -77,18 +80,8 @@ class GeometryOptimizationProblem:
             poly_area += d
         return abs(poly_area) / 2
 
-    # fitness
+    # fitness function
     def __call__(self, dimensions):
-        # 1. transformation
-        # 2. forme.checkPoints(point)
-        # 3. canvas.intersects(forme)
-        # IF 2 et 3 FALSE alors return AIRE
-        # SINON return 0
-
-        # mettre le point d'origine des transformations au centre?!
-
-        poly_area = 0
-        free_zone = True
         t = QTransform()
         t.translate(dimensions[0], dimensions[1])
         t.rotate(dimensions[2])
@@ -96,16 +89,11 @@ class GeometryOptimizationProblem:
         modified_poly = t.map(self.__polygon)
         for obstacle in self.__obstacles:
             if modified_poly.contains_point(obstacle, Qt.OddEvenFill):
-                free_zone = False
-                break
-        if free_zone:
-            for vertex in modified_poly:
-                if self.__surface.contains(vertex) is False:
-                    free_zone = False
-                    break
-        if free_zone:
-            poly_area = self.calculate_area(modified_poly)
-        return poly_area
+                return 0.
+        for vertex in modified_poly:
+            if self.__surface.contains(vertex) is False:
+                return 0.
+        return self.calculate_area(modified_poly)
 
 
 class ShapeGenerator:
@@ -193,7 +181,7 @@ if __name__ == '__main__':
     sg = ShapeGenerator(6)
 
     gop = GeometryOptimizationProblem()
-    gop.polygon = ShapeGenerator(3).shape
+    gop.polygon = ShapeGenerator(4).shape
 
     new_problem = gacvm.ProblemDefinition(gop.domains, gop)
 
