@@ -75,7 +75,6 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._image_visualization = QSimpleImage()
         visuBox_layout.add_widget(self._image_visualization)
 
-
         #### General layout and connections ####
         general_layout.add_widget(paramsBox)
         general_layout.add_widget(visuBox)
