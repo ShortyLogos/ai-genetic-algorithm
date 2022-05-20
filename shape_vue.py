@@ -1,4 +1,5 @@
 import gaapp
+import math
 from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
 from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpleImage
@@ -46,6 +47,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         max_vertex = self._shape_generator.max_vertex_count
         min_concavity = self._shape_generator.min_concavity
         max_concavity = self._shape_generator.max_concavity
+        min_obstacle = self._optimisation_problem.min_obstacle
+        max_obstacle = self._optimisation_problem.max_obstacle
 
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
         paramsForm_layout.add_row('Numbers of vertex', vertex_layout)
@@ -55,12 +58,12 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         paramsForm_layout.add_row('Concavity Ratio', concavity_layout)
         self._concavity_widget.valueChanged.connect(self.apply_custom)
         
-        self._obstacle_widget, obstacle_layout = create_scroll_int_value(1, 30, 100)
+        self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, (math.ceil(max_obstacle-min_obstacle/2)), max_obstacle)
         paramsForm_layout.add_row('Obstacle count', obstacle_layout)
         self._obstacle_widget.valueChanged.connect(self.apply_custom)
         
         button_obstacle = QPushButton("Generate obstacles")
-        button_obstacle.clicked.connect(self.__generate_obstacles)
+        button_obstacle.clicked.connect(self._generate_obstacles)
 
         paramsBox_layout.add_widget(form_widget)
         paramsBox_layout.add_widget(button_obstacle)
@@ -103,16 +106,22 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._shape_generator.r = self._concavity_widget.value
 
     @Slot()
-    def __generate_obstacles(self):
-        #Basically ça va faire une image vide avec juste les obstacles dessus qui sera utiliser ensuite pour le reste de la simulation
-        #J'imagine qu'il y a une partie qui doit être créer par et/ou envoyé au model vu que c'est les obstacles utilisé par la simulation
+    def _generate_obstacles(self):
         self._optimisation_problem.generate_obstacles()
-        qimage = QImage(self._image_width, self._image_height, QImage.Format_RGB32)
+        self._draw_image()
+
+    @Slot()
+    def _draw_image(self):
+        qimage = QImage(self._image_width, self._image_height, QImage.Format_ARGB32)
+        qimage.fill(QColor(0,0,0))
+        painter = QPainter(qimage)
         for obstacle in self._optimisation_problem.obstacles:
             x = obstacle.x()
             y = obstacle.y()
             qpoint = QPoint(x, y)
-            qimage.set_pixel(qpoint, QColor(0, 0, 255, 255).red())
+            qimage.set_pixel_color(qpoint, QColor(255, 255, 255))
+        #Peinturer formes
+        painter.end()
         self._image_visualization.image = qimage
 
     @property
@@ -132,7 +141,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
-        return ProblemDefinition()
+        return ProblemDefinition(self._optimisation_problem.domains, self._optimisation_problem)
 
     @property
     def default_parameters(self):
@@ -140,7 +149,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         Retourne un objet de paramètres de l'algorithme génétique. Ces valeurs seront utilisée pour initialiser la liste des paramètres à gauche dans l'interface utilisateur.
         '''
         params = Parameters()
-        return Parameters()
+        return params
 
 
     def _update_from_simulation(self, ga=None):

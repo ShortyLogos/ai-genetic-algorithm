@@ -72,12 +72,7 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
-        new_problem = ProblemDefinition(self._open_box_problem.domains, self._open_box_problem)
-        genetic_algorithm = GeneticAlgorithm(new_problem)
-        genetic_algorithm.is_ready
-        genetic_algorithm.evolve()
-        genetic_algorithm.population
-        return new_problem
+        return ProblemDefinition(self._open_box_problem.domains, self._open_box_problem)
 
     @property
     def default_parameters(self):
@@ -93,3 +88,11 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
+        if ga:
+            #Appelé à chaque evolution, on recoit tout l'engin, acces à toute la population 
+            for chromosone in ga.population:
+                pass
+            chromosone = ga.history.best_solution
+            cut = chromosone[0]
+        else:
+            pass #Appelé soit quand l'evolution evolue ou pas, si pas, ga à none
