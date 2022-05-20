@@ -47,8 +47,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         max_vertex = self._shape_generator.max_vertex_count
         min_concavity = self._shape_generator.min_concavity
         max_concavity = self._shape_generator.max_concavity
-        min_obstacle = 1#self._optimisation_problem.min_obstacle
-        max_obstacle = 100#self._optimisation_problem.max_obstacle
+        min_obstacle = self._optimisation_problem.min_obstacles
+        max_obstacle = self._optimisation_problem.max_obstacles
 
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
         paramsForm_layout.add_row('Numbers of vertex', vertex_layout)
