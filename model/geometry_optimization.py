@@ -2,8 +2,8 @@ import random
 
 import sys
 import numpy as np
-import gacvm as gacvm
-import umath as umath
+import model.gacvm as gacvm
+import model.umath as umath
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 
