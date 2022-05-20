@@ -7,4 +7,5 @@
 .vscode
 .pycache
 .idea
+__pycache__
 model/__pycache__/
