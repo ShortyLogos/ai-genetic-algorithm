@@ -69,12 +69,14 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         qimage.fill(QColor(154,123,98))
         painter = QPainter(qimage)
         painter.set_brush(QColor(64, 64, 64))
+
         painter.set_pen(QPen(QColor(64, 64, 64), 3, Qt.DotLine))
+        # On fait cut*2 pour des raisons esthétiques afin de réussir notre effet visuel de découpe
+        # autrement on aperçoit la boîte du fond derrière les pointillés externes
         painter.draw_rect(0, 0, cut, cut)
-        painter.draw_rect(0, box_height-cut, cut, cut)
-        #On fait cut*2 juste pour des raisons esthétiques afin de ne pas voir les pointillés à droite de l'image
+        painter.draw_rect(0, box_height-cut, cut, cut*2)
         painter.draw_rect(box_width-cut, 0, cut*2, cut)
-        painter.draw_rect(box_width-cut, box_height-cut, cut*2, cut)
+        painter.draw_rect(box_width-cut, box_height-cut, cut*2, cut*2)
         painter.end()
         self._image_visualization.image = qimage
 
