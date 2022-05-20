@@ -6,7 +6,7 @@ from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpl
 
 from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker, QPoint
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QPushButton, QLabel
-from PySide6.QtGui import (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor)
+from PySide6.QtGui import (QImage, QPixmap, QIcon, QPainter, QFont, QPen, QBrush, QColor, QTransform)
 from __feature__ import snake_case, true_property
 
 class ShapePanel(gaapp.QSolutionToSolvePanel):
@@ -47,8 +47,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         max_vertex = self._shape_generator.max_vertex_count
         min_concavity = self._shape_generator.min_concavity
         max_concavity = self._shape_generator.max_concavity
-        min_obstacle = self._optimisation_problem.min_obstacle
-        max_obstacle = self._optimisation_problem.max_obstacle
+        min_obstacle = 1#self._optimisation_problem.min_obstacle
+        max_obstacle = 100#self._optimisation_problem.max_obstacle
 
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
         paramsForm_layout.add_row('Numbers of vertex', vertex_layout)
@@ -58,7 +58,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         paramsForm_layout.add_row('Concavity Ratio', concavity_layout)
         self._concavity_widget.valueChanged.connect(self.apply_custom)
         
-        self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, (math.ceil(max_obstacle-min_obstacle/2)), max_obstacle)
+        self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, (math.ceil((max_obstacle-min_obstacle)/2)), max_obstacle)
         paramsForm_layout.add_row('Obstacle count', obstacle_layout)
         self._obstacle_widget.valueChanged.connect(self.apply_custom)
         
@@ -111,18 +111,45 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._draw_image()
 
     @Slot()
-    def _draw_image(self):
+    def _draw_image(self, ga=None):
         qimage = QImage(self._image_width, self._image_height, QImage.Format_ARGB32)
         qimage.fill(QColor(0,0,0))
-        painter = QPainter(qimage)
         for obstacle in self._optimisation_problem.obstacles:
             x = obstacle.x()
             y = obstacle.y()
+            painter = QPainter(qimage)
             qpoint = QPoint(x, y)
             qimage.set_pixel_color(qpoint, QColor(255, 255, 255))
-        #Peinturer formes
-        painter.end()
+            painter.end()
+        if ga:
+            for chromosone in ga.population:
+                self._draw_shape(qimage, chromosone)
+            self._draw_shape(qimage, ga.history.best_solution, True)
         self._image_visualization.image = qimage
+
+    @Slot()
+    def _draw_shape(self, qimage, transformations, best=False):
+        t = QTransform()
+        t.translate(transformations[0], transformations[1])
+        t.rotate(transformations[2])
+        t.scale(transformations[3], transformations[3])
+        modified_poly = t.map(self._optimisation_problem.polygon)
+        painter = QPainter(qimage)
+        if best:
+            painter.set_brush(Qt.cyan)
+            painter.set_pen(Qt.magenta)
+            painter.draw_polygon(modified_poly, Qt.OddEvenFill)
+        else:
+            painter.set_brush(Qt.NoBrush)
+            painter.set_pen(Qt.red)
+            painter.draw_polygon(modified_poly, Qt.OddEvenFill)
+        painter.end()
+            
+
+    @Slot()
+    def _generate_shape(self):
+        self._shape_generator.generate_shape()
+        self._optimisation_problem.polygon = self._shape_generator.shape
 
     @property
     def name(self):
@@ -141,6 +168,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
+        self._generate_shape()
         return ProblemDefinition(self._optimisation_problem.domains, self._optimisation_problem)
 
     @property
@@ -151,8 +179,12 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         params = Parameters()
         return params
 
-
     def _update_from_simulation(self, ga=None):
         '''
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
+        if ga:
+            #Appelé à chaque evolution, on recoit tout l'engin, acces à toute la population 
+            self._draw_image(ga)
+        else:
+            pass #Appelé soit quand l'evolution evolue ou pas, si pas, ga à none
