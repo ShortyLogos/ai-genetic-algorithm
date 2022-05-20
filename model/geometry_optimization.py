@@ -12,7 +12,7 @@ from __feature__ import snake_case, true_property
 
 class GeometryOptimizationProblem:
 
-    def __init__(self, surface_width=500, surface_height=250, obstacles_count=100):
+    def __init__(self, surface_width=600, surface_height=250, obstacles_count=100):
         self.__surface = QRectF(0, 0, surface_width, surface_height)
         self.__polygon = None
         self.__obstacles_count = obstacles_count
@@ -61,7 +61,7 @@ class GeometryOptimizationProblem:
         return self.__domains
 
     def scaling_upper_bracket(self, surface_width, surface_height):
-        return max(surface_width, surface_height)/2
+        return float(max(surface_width, surface_height)/2)
 
     def generate_obstacles(self):
         self.__obstacles.clear()
