@@ -90,8 +90,6 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         '''
         if ga:
             #Appelé à chaque evolution, on recoit tout l'engin, acces à toute la population 
-            for chromosone in ga.population:
-                pass
             chromosone = ga.history.best_solution
             cut = chromosone[0]
         else:
