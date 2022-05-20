@@ -179,9 +179,11 @@ class ShapeGenerator:
 
     def generate_concave_polygon(self):
         self.__shape.resize(self.__vertex_count * 2)
+        segmentation = ((2 * np.pi) / self.__vertex_count)
         for i in range(self.__vertex_count):
-            thetaR = i * ((2 * np.pi) / self.__vertex_count)
-            thetar = thetaR + (0.5 * thetaR)
+            thetaR = i * segmentation
+            # nextTheta = (i + 1) * segmentation
+            thetar = (i + 0.5) * segmentation
 
             xp = np.cos(thetaR)
             yp = np.sin(thetaR)

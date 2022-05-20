@@ -92,6 +92,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
             shape = self._shape_dropdown.item_data(choice)
             self._vertex_widget.set_value(shape[0])
             self._concavity_widget.set_real_value(shape[1])
+        self._update_problem()
         signal_blocker.unblock()
 
     @Slot()
@@ -103,7 +104,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
     def _update_problem(self):
         self._optimisation_problem.obstacles_count = self._obstacle_widget.value
         self._shape_generator.vertex_count = self._vertex_widget.value
-        self._shape_generator.r = self._concavity_widget.value
+        self._shape_generator.r = self._concavity_widget.get_real_value()
+        pass
 
     @Slot()
     def _generate_obstacles(self):
