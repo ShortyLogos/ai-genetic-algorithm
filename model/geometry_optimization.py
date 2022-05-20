@@ -12,21 +12,16 @@ from __feature__ import snake_case, true_property
 
 class GeometryOptimizationProblem:
 
-    def __init__(self, surface_width=600, surface_height=250, obstacles_count=100):
+    def __init__(self, surface_width=500, surface_height=250, obstacles_count=30, min_obstacles=1):
         self.__surface = QRectF(0, 0, surface_width, surface_height)
         self.__polygon = None
         self.__obstacles_count = obstacles_count
-        self.__translationX_range = (0., self.__surface.width())
-        self.__translationY_range = (0., self.__surface.height())
-        self.__rotation_range = (0., 360.)
-        self.__scaling_range = (0., self.scaling_upper_bracket(surface_width, surface_height))
-        self.__domains = gacvm.Domains(np.array([self.__translationX_range,
-                                                 self.__translationY_range,
-                                                 self.__rotation_range,
-                                                 self.__scaling_range], float),
-                                       ('tx', 'ty', 'r', 's'))
         self.__obstacles = []
+        self.__min_obstacles = min_obstacles
+        self.__max_obstacles = 0
+        self.calculate_max_obstacles()
         self.generate_obstacles()
+        self.generate_domain()
 
     @property
     def surface(self):
@@ -35,10 +30,20 @@ class GeometryOptimizationProblem:
     @surface.setter
     def surface(self, new_surface):
         self.__surface = new_surface
+        self.calculate_max_obstacles()
+        self.generate_domain()
 
     @property
     def obstacles(self):
         return self.__obstacles
+
+    @property
+    def min_obstacles(self):
+        return self.__min_obstacles
+
+    @property
+    def max_obstacles(self):
+        return self.__max_obstacles
 
     @property
     def polygon(self):
@@ -54,14 +59,28 @@ class GeometryOptimizationProblem:
 
     @obstacles_count.setter
     def obstacles_count(self, value):
-        self.__obstacles_count = umath.clamp(1, value, 100)
+        self.__obstacles_count = umath.clamp(1, value, self.__max_obstacles)
 
     @property
     def domains(self):
         return self.__domains
 
+    def generate_domain(self):
+        self.__translationX_range = (0., self.__surface.width())
+        self.__translationY_range = (0., self.__surface.height())
+        self.__rotation_range = (0., 360.)
+        self.__scaling_range = (0., self.scaling_upper_bracket(self.__surface.width(), self.__surface.height()))
+        self.__domains = gacvm.Domains(np.array([self.__translationX_range,
+                                                 self.__translationY_range,
+                                                 self.__rotation_range,
+                                                 self.__scaling_range], float),
+                                       ('tx', 'ty', 'r', 's'))
+
     def scaling_upper_bracket(self, surface_width, surface_height):
         return float(max(surface_width, surface_height)/2)
+
+    def calculate_max_obstacles(self, max_covered_ratio=0.8):
+        self.__max_obstacles = int(max(self.__surface.width(), self.__surface.height()) * max_covered_ratio)
 
     def generate_obstacles(self):
         self.__obstacles.clear()
