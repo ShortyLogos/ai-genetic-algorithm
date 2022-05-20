@@ -126,7 +126,7 @@ class ShapeGenerator:
         self.__r = r
         self.__R = R
         self.vertex_count = vertex_count
-        self.__poly_angle = (2 * np.pi) / self.__vertex_count
+        self.__poly_angle = self.__vertex_count * ((2 * np.pi) / self.__vertex_count)
         self.generate_shape()
 
     @property
@@ -180,11 +180,11 @@ class ShapeGenerator:
     def generate_concave_polygon(self):
         self.__shape.resize(self.__vertex_count * 2)
         for i in range(self.__vertex_count):
-            thetaR = self.__poly_angle
-            thetar = thetaR + (0.5 * self.__poly_angle)
+            thetaR = i * ((2 * np.pi) / self.__vertex_count)
+            thetar = thetaR + (0.5 * thetaR)
 
-            xp = np.cos(thetaR) * self.__R
-            yp = np.sin(thetaR) * self.__R
+            xp = np.cos(thetaR)
+            yp = np.sin(thetaR)
             self.__shape[i * 2] = QPointF(xp, yp)
 
             xc = np.cos(thetar) * self.__r
@@ -195,12 +195,13 @@ class ShapeGenerator:
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
 
-    sg = ShapeGenerator(4)
     sg = ShapeGenerator(5)
-    sg = ShapeGenerator(6)
+    sg.r = 0.5
+    sg.generate_shape()
+    pass
 
     gop = GeometryOptimizationProblem()
-    gop.polygon = ShapeGenerator(4).shape
+    gop.polygon = sg.shape
 
     new_problem = gacvm.ProblemDefinition(gop.domains, gop)
 
