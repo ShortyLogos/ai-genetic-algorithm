@@ -6,7 +6,7 @@ from uqtwidgets import create_scroll_real_value, QSimpleImage
 
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout
-from PySide6.QtGui import (QImage, QPainter, QPen, QColor)
+from PySide6.QtGui import (QImage, QPainter, QPen, QColor, QBrush)
 from __feature__ import snake_case, true_property
 
 class BoxPanel(gaapp.QSolutionToSolvePanel):
@@ -62,16 +62,19 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
     @Slot()
     def _draw_image(self, cut):
         max_image_size = min(self._image_visualization.width, self._image_visualization.height)
+        cut = (cut/self._open_box_problem.max_box_size) * max_image_size
         box_width = (self._open_box_problem.box_width / self._open_box_problem.max_box_size) * max_image_size
         box_height = (self._open_box_problem.box_height / self._open_box_problem.max_box_size) * max_image_size
         qimage = QImage(box_width, box_height, QImage.Format_ARGB32)
-        qimage.fill(QColor(0,0,0))
+        qimage.fill(QColor(154,123,98))
         painter = QPainter(qimage)
-        painter.set_brush(Qt.white)
-        painter.draw_rect(0, 0, cut,cut)
-        painter.draw_rect(box_width-cut, 0,cut,cut)
-        painter.draw_rect(box_width-cut, box_height-cut,cut,cut)
-        painter.draw_rect(0, box_height-cut,cut,cut)
+        painter.set_brush(QColor(64, 64, 64))
+        painter.set_pen(QPen(QColor(64, 64, 64), 3, Qt.DotLine))
+        painter.draw_rect(0, 0, cut, cut)
+        painter.draw_rect(0, box_height-cut, cut, cut)
+        #On fait cut*2 juste pour des raisons esthétiques afin de ne pas voir les pointillés à droite de l'image
+        painter.draw_rect(box_width-cut, 0, cut*2, cut)
+        painter.draw_rect(box_width-cut, box_height-cut, cut*2, cut)
         painter.end()
         self._image_visualization.image = qimage
 
