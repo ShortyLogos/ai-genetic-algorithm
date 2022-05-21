@@ -51,7 +51,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         max_obstacle = self._optimisation_problem.max_obstacles
 
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
-        paramsForm_layout.add_row('Numbers of vertex', vertex_layout)
+        paramsForm_layout.add_row('Vertex Count', vertex_layout)
         self._vertex_widget.valueChanged.connect(self.apply_custom)
         
         self._concavity_widget, concavity_layout = create_scroll_real_value(min_concavity, min_concavity, max_concavity, 2)
@@ -59,10 +59,10 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._concavity_widget.valueChanged.connect(self.apply_custom)
         
         self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, (math.ceil((max_obstacle-min_obstacle)/2)), max_obstacle)
-        paramsForm_layout.add_row('Obstacle count', obstacle_layout)
+        paramsForm_layout.add_row('Obstacles Count', obstacle_layout)
         self._obstacle_widget.valueChanged.connect(self.parameter_changed)
         
-        button_obstacle = QPushButton("Generate obstacles")
+        button_obstacle = QPushButton("Generate Obstacles")
         button_obstacle.clicked.connect(self._generate_obstacles)
 
         paramsBox_layout.add_widget(form_widget)
@@ -104,7 +104,6 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         self._optimisation_problem.obstacles_count = self._obstacle_widget.value
         self._shape_generator.vertex_count = self._vertex_widget.value
         self._shape_generator.r = self._concavity_widget.get_real_value()
-        pass
 
     @Slot()
     def _generate_obstacles(self):
@@ -152,7 +151,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def name(self):
-        return "Optimisation Geometrique"
+        return "Geometry Optimization Problem"
 
     @property
     def summary(self):

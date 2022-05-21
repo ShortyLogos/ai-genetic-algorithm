@@ -5,6 +5,7 @@ import gaapp
 import box_vue
 import shape_vue
 import community_vue
+import model.custom_strategies as cs
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QApplication, QFileDialog
@@ -29,6 +30,9 @@ if __name__ == '__main__':
     ga_app.add_solution_panel(box_vue.BoxPanel())
     ga_app.add_solution_panel(shape_vue.ShapePanel())
     ga_app.add_solution_panel(community_vue.CommunityPanel())
+
+    # ajout de stratégies de mutation personnalisées
+    ga_app.add_mutation_strategy(cs.DoubleGenesStrategy)
 
     ga_app.show()
     sys.exit(app.exec_())
