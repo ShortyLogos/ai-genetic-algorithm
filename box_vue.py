@@ -90,7 +90,9 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def description(self):
-        return "Je ferai la description de la boite magique plus tard"
+        return "Le problème consiste à former une boite en pliant un rectangle sur lui-même. Il faut couper des carrées aux quatres coins du rectangle pour faciliter ce plie. La contrainte " \
+               "qu'il faut respecter est d'optimiser le volume de la boite pour qu'il soit le plus gros possible. L'usager peut selectionner différentes dimensions pour personaliser le problème." \
+               "La solution est calculée à d'un algorithme génétique."
 
     @property
     def problem_definition(self):

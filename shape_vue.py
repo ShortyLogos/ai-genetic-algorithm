@@ -160,7 +160,9 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def description(self):
-        return "Je ferai la description pour les belles grosses formes plus tard"
+        return "Ce problème consiste à trouver une forme avec la plus grande surface sans toucher à un point. L'usager peut choisir une forme prédéfinie tel qu'un" \
+               "triangle ou un carrée, mais il peut décider une forme personnalisée avec le nombre de sommets et l'angle. Par la suite, il peut décider du nombre " \
+               "d'obtacle qu'il désire. Le tout est calculé à l'aide d'un algorithme génétique."
 
     @property
     def problem_definition(self):
