@@ -602,10 +602,10 @@ class QGAApp(QMainWindow):
 
         # self._parameter_widget.update_from_adapter(self._ga)
         
-        self._ga.started.connect(lambda : self._parameter_widget.setEnabled(False))
-        self._ga.started.connect(lambda : self._solution_panels.setEnabled(False))
-        self._ga.ended.connect(lambda : self._parameter_widget.setEnabled(True))
-        self._ga.ended.connect(lambda : self._solution_panels.setEnabled(True))
+        self._ga.started.connect(lambda : self._parameter_widget.set_enabled(False))
+        self._ga.started.connect(lambda : self._solution_panels.set_enabled(False))
+        self._ga.ended.connect(lambda : self._parameter_widget.set_enabled(True))
+        self._ga.ended.connect(lambda : self._solution_panels.set_enabled(True))
         self._ga.evolved.connect(self._history_graph_widget.update_history)
         self._ga.evolved.connect(self._evolution_info_widget.update)
         self._ga.evolved.connect(lambda:self._solution_panels.update(self._ga.genetic_algorithm))
