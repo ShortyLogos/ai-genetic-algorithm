@@ -82,7 +82,7 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def name(self):
-        return "Boite Ouverte"
+        return "Open Box"
 
     @property
     def summary(self):

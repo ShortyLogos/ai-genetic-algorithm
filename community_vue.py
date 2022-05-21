@@ -78,7 +78,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def name(self):
-        return "Community Optimisation"
+        return "Happy Community"
 
     @property
     def summary(self):
