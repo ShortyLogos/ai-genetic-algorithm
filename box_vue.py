@@ -17,8 +17,6 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         super().__init__(parent)
         self._main_layout = QHBoxLayout()
         self.set_layout(self._main_layout)
-        general_widget = QWidget()
-        general_layout = QHBoxLayout(general_widget)
         
         self._open_box_problem = OpenBoxProblem()
 
@@ -49,9 +47,8 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         visuBox_layout.add_widget(self._image_visualization)
 
         #### General Layout and connections ####
-        general_layout.add_widget(paramsBox)
-        general_layout.add_widget(visuBox)
-        self._main_layout.add_widget(general_widget)
+        self._main_layout.add_widget(paramsBox)
+        self._main_layout.add_widget(visuBox)
         self.parameter_changed.connect(self._update_adapter)
 
     @Slot()
