@@ -11,8 +11,7 @@ from __feature__ import snake_case, true_property
 
 
 class StackedBarWidget():
-    def __init__(self, title, xLabel, yLabel):
-        self._title = title
+    def __init__(self, xLabel, yLabel):
         self._x_label = xLabel
         self._y_label = yLabel
         self._colors =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, .5, .7),(.5, 1, .7),(.7, 1, .5)])
@@ -30,7 +29,6 @@ class StackedBarWidget():
         ax.set_proj_type('persp')
         ###################################
 
-        ax.set_title(self._title)
         ax.set_xlabel(self._x_label)
         ax.set_ylabel(self._y_label)
 
