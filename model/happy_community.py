@@ -30,11 +30,25 @@ class HappyCommunityProblem:
         [3] -> Health
         """
         self.__jobs_value = np.array(
-            [[0.5], [0.], [0.], [0.8]],  # Doctor
-            [[0.375], [0.15], [0.35], [0.125]],  # Engineer
-            [[0.1], [0.6], [0.], [0.05]],  # Farmer
-            [[0.025], [0.25], [0.65], [0.025]],  # Worker
+            [[0.5, 0., 0., 0.8],  # Doctor
+            [0.375, 0.15, 0.35, 0.125],  # Engineer
+            [0.1, 0.6, 0., 0.05],  # Farmer
+            [0.025, 0.25, .65,0.025]],  # Worker
             dtype=float)
+
+        self.__default_jobs = np.array(
+            [[3], [2], [2], [3]]
+        )
+
+        self.__tags_jobs = np.array(
+            ["Doctor", "Engineer", "Farmer", "Worker"]
+            , dtype=np.str_
+        )
+
+    def generate_happiness_score(self):
+        score_per_job = self.__default_jobs[:, :] * self.__jobs_value[:, :]
+        sum_per_aspect = np.sum(score_per_job, axis=0)
+        return sum_per_aspect
 
     def generate_domain(self):
         self.__doctor_count = (0., self.context.community_size)
@@ -148,7 +162,7 @@ class CommunityContext:
         self.__food_production = 0.
         self.__goods_production = 0.
         self.__weighted_aspects = None
-        self.generate_priorities() # Fonction qui génère la pondération des aspects de société
+        self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
 
     @property
     def community_size(self):
@@ -182,6 +196,12 @@ if __name__ == '__main__':
     c.set_weighted_aspects(c.preset_contexts["West, 2010-2020"])
     print(c.weighted_aspects)
 
+    hcp = HappyCommunityProblem(c)
+    sum_per_aspect = hcp.generate_happiness_score()
+    aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
+    happiness_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
+
+    print(happiness_fitness_score)
 
     # new_problem = gacvm.ProblemDefinition(gop.domains, gop)
     #
@@ -191,7 +211,6 @@ if __name__ == '__main__':
     # genetic_algorithm.population_fitness
     pass
     # CRÉATION DES OBJETS QT
-
 
 ### RÉFÉRENCES ###
 
