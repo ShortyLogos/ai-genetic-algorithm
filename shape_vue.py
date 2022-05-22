@@ -34,9 +34,9 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         paramsForm_layout.add_row('Height', QLabel(str(self._image_height)))      
         
         self._shape_dropdown = QComboBox()
-        self._shape_dropdown.add_item("Triangle",[3, 0])
-        self._shape_dropdown.add_item("Star 5",[5,0.5])
-        self._shape_dropdown.add_item("Square",[4, 0])
+        presets = self._shape_generator.preset_shapes
+        for shape in presets.keys():
+            self._shape_dropdown.add_item(shape, presets[shape])
         self._shape_dropdown.add_item("Custom")
         self._shape_dropdown.currentIndexChanged.connect(self.__shape_changed)
         paramsForm_layout.add_row('Shape', self._shape_dropdown)

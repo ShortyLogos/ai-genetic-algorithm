@@ -36,9 +36,10 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         paramsForm_layout.add_row('Community Size', size_layout)
         
         self._context_dropdown = QComboBox()
-        self._context_dropdown.add_item("Choix 1", [0,1]) ######
-        self._context_dropdown.add_item("Choix 2", [0,1]) ######
-        self._context_dropdown.add_item("Choix 3", [0,1]) ######
+        """
+        for context in self._modele:
+            self._context_dropdown.add_item(context.name, context.data)
+        """
         self._context_dropdown.add_item("Custom")
         self._context_dropdown.currentIndexChanged.connect(self.__context_changed)
         paramsForm_layout.add_row('Context', self._context_dropdown)
@@ -50,8 +51,8 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         visuBox = QGroupBox("Visualization")
         visuBox_layout = QHBoxLayout(visuBox)
         self._image_visualization = QSimpleImage()
-        self._graphic_generator = StackedBarWidget() #############################
-        self._image_visualization = self._graphic_generator.img
+        self._graphic_generator = StackedBarWidget('Jobs', 'Distribution')
+        self._image_visualization.image = self._graphic_generator.img
         visuBox_layout.add_widget(self._image_visualization)
 
         #### General layout and connections ####
