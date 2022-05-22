@@ -75,7 +75,7 @@ class GeometryOptimizationProblem:
                                        ('tx', 'ty', 'r', 's'))
 
     def scaling_upper_bracket(self, surface_width, surface_height):
-        return float(max(surface_width, surface_height)/2)
+        return float(max(surface_width, surface_height) / 2)
 
     def calculate_max_obstacles(self, max_covered_ratio=0.8):
         self.__max_obstacles = int(max(self.__surface.width(), self.__surface.height()) * max_covered_ratio)
@@ -126,6 +126,12 @@ class ShapeGenerator:
         self.vertex_count = vertex_count
         self.__poly_angle = self.__vertex_count * ((2 * np.pi) / self.__vertex_count)
         self.generate_shape()
+
+    @property
+    def preset_shapes(self):
+        return {"Triangle": [3, 0],
+                "Square": [4, 0],
+                "Star 5": [5, 0.5]}
 
     @property
     def shape(self):
@@ -194,7 +200,6 @@ class ShapeGenerator:
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
-
     sg = ShapeGenerator(5)
     sg.r = 0.5
     sg.generate_shape()
@@ -227,7 +232,6 @@ if __name__ == '__main__':
     # genetic_algorithm.population
     #
     # Test ShapeGenerator
-
 
 ### RÉFÉRENCES ###
 
