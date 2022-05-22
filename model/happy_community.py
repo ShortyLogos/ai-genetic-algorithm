@@ -11,6 +11,9 @@ class HappyCommunityProblem:
     def __init__(self, community_context=None):
         self.__context = community_context
         self.__jobs_value = None
+        self.__default_jobs = np.array([[3], [2], [2], [3]])
+        self.__jobs_count = np.array([[3], [2], [2], [3]])
+        # BONNE LIGNE self.__jobs_count = np.empty([1, 4]) # bracket supérieure = nbr de métiers
         self.generate_jobs_value()
         self.generate_domain()
 
@@ -31,24 +34,21 @@ class HappyCommunityProblem:
         """
         self.__jobs_value = np.array(
             [[0.5, 0., 0., 0.8],  # Doctor
-            [0.375, 0.15, 0.35, 0.125],  # Engineer
-            [0.1, 0.6, 0., 0.05],  # Farmer
-            [0.025, 0.25, .65,0.025]],  # Worker
+             [0.375, 0.15, 0.35, 0.125],  # Engineer
+             [0.1, 0.6, 0., 0.05],  # Farmer
+             [0.025, 0.25, .65, 0.025]],  # Worker
             dtype=float)
-
-        self.__default_jobs = np.array(
-            [[3], [2], [2], [3]]
-        )
 
         self.__tags_jobs = np.array(
             ["Doctor", "Engineer", "Farmer", "Worker"]
             , dtype=np.str_
         )
 
-    def generate_happiness_score(self):
-        score_per_job = self.__default_jobs[:, :] * self.__jobs_value[:, :]
-        sum_per_aspect = np.sum(score_per_job, axis=0)
-        return sum_per_aspect
+    def generate_jobs_scores(self):
+        return self.__jobs_count[:, :] * self.__jobs_value[:, :]
+
+    def generate_sum_per_aspect(self):
+        return np.sum(self.generate_jobs_scores(), axis=0)
 
     def generate_domain(self):
         self.__doctor_count = (0., self.context.community_size)
@@ -72,7 +72,16 @@ class HappyCommunityProblem:
         2. Somme du résultat pondéré de chaque aspect - score du coût de communauté (community cost)
         somme de tous les scores pondérés des différents aspects de société
         """
-        pass
+        self.__jobs_count = np.array([
+            [jobs[0]],
+            [jobs[1]],
+            [jobs[2]],
+            [jobs[3]]
+        ])
+        sum_per_aspect = self.generate_sum_per_aspect()
+        aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
+        satisfaction = np.sum(aspects_weighted_scores) - sum_per_aspect[0]  # Soustraction par Community Cost
+        return umath.clamp(0, satisfaction, satisfaction)
 
 
 class SocioPoliticalContext:
@@ -194,23 +203,13 @@ class CommunityContext:
 if __name__ == '__main__':
     c = CommunityContext()
     c.set_weighted_aspects(c.preset_contexts["West, 2010-2020"])
-    print(c.weighted_aspects)
 
     hcp = HappyCommunityProblem(c)
-    sum_per_aspect = hcp.generate_happiness_score()
+    sum_per_aspect = hcp.generate_sum_per_aspect()
     aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
-    happiness_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
+    satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
 
-    print(happiness_fitness_score)
-
-    # new_problem = gacvm.ProblemDefinition(gop.domains, gop)
-    #
-    # genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    # genetic_algorithm.is_ready
-    # genetic_algorithm.evolve()
-    # genetic_algorithm.population_fitness
-    pass
-    # CRÉATION DES OBJETS QT
+    
 
 ### RÉFÉRENCES ###
 
