@@ -18,7 +18,7 @@ class GeometryOptimizationProblem:
         self.__max_obstacles = 0
         self.calculate_max_obstacles()
         if obstacles_count == 0:
-            self.__obstacles_count = self.__max_obstacles / 2
+            self.__obstacles_count = int(self.__max_obstacles / 2)
         else:
             self.__obstacles_count = obstacles_count
         self.generate_obstacles()
@@ -201,42 +201,7 @@ class ShapeGenerator:
             self.__shape[i * 2 + 1] = QPointF(xc, yc)
 
 
-# À SUPPRIMER AVANT REMISE, TEST SEULEMENT
-if __name__ == '__main__':
-    sg = ShapeGenerator(5)
-    sg.r = 0.5
-    sg.generate_shape()
-    pass
-
-    gop = GeometryOptimizationProblem()
-    gop.polygon = sg.shape
-
-    new_problem = gacvm.ProblemDefinition(gop.domains, gop)
-
-    genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    genetic_algorithm.is_ready
-    genetic_algorithm.evolve()
-    genetic_algorithm.population_fitness
-    pass
-    # CRÉATION DES OBJETS QT
-    # surface = QRectF()
-    #
-    # Valeurs imposées à titre pratique
-    # comme dans l'exemple du professeur
-    # surface.setWidth(500)
-    # surface.setHeight(250)
-    #
-    # geometry_optimization_problem = GeometryOptimizationProblem(surface, 5, 5)
-    # new_problem = gacvm.ProblemDefinition(geometry_optimization_problem.domains, geometry_optimization_problem)
-    #
-    # genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    # genetic_algorithm.is_ready
-    # genetic_algorithm.evolve()
-    # genetic_algorithm.population
-    #
-    # Test ShapeGenerator
-
 ### RÉFÉRENCES ###
 
-## Calcul de l'aire d'un QPolygonF
+# Calcul de l'aire d'un QPolygonF
 # https://stackoverflow.com/questions/67558984/how-calculate-qpolygon-area

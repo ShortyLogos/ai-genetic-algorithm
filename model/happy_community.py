@@ -10,18 +10,17 @@ from __feature__ import snake_case, true_property
 class HappyCommunityProblem:
     def __init__(self, community_context=None):
         self.__context = community_context
-        # self.__preset_contexts = np.array()
         self.__jobs_value = None
         self.generate_jobs_value()
         self.generate_domain()
 
     @property
     def context(self):
-        return self.__community_context
+        return self.__context
 
     @context.setter
     def context(self, community):
-        self.__community_context =community
+        self.__context = community
 
     def generate_jobs_value(self):
         """
@@ -60,6 +59,7 @@ class HappyCommunityProblem:
         somme de tous les scores pondérés des différents aspects de société
         """
         pass
+
 
 class SocioPoliticalContext:
     def __init__(self, life_expectancy=60):
@@ -127,10 +127,12 @@ class SocioPoliticalContext:
     def epidemic(self, bool):
         self.__global_warming = bool
 
+
 class CommunityContext:
     """
     On doit faire appel à des setters pour les paramétrer
     """
+
     def __init__(self, socio_political_context=None, community_size=200):
         self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
@@ -142,10 +144,11 @@ class CommunityContext:
 
         # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
         # self.__community_cost = ... la pondération du CC est toujours de 1
-        self.__health = 4.
-        self.__food_production = 4.
-        self.__goods_production = 4.
-        self.generate_priorities()
+        self.__health = 0.
+        self.__food_production = 0.
+        self.__goods_production = 0.
+        self.__weighted_aspects = None
+        self.generate_priorities() # Fonction qui génère la pondération des aspects de société
 
     @property
     def community_size(self):
@@ -155,6 +158,42 @@ class CommunityContext:
     def community_size(self, size):
         self.__community_size = size
 
+    @property
+    def preset_contexts(self):
+        return {
+            "West, 2010-2020": np.array([0.3, 0.3, 0.4])
+        }
+
+    @property
+    def weighted_aspects(self):
+        return self.__weighted_aspects
+
+    def set_weighted_aspects(self, aspects_array):
+        self.__weighted_aspects = aspects_array
+
     # génère une pondération utilisée par la fitness function
     def generate_priorities(self):
         pass
+
+
+# À SUPPRIMER AVANT REMISE, TEST SEULEMENT
+if __name__ == '__main__':
+    c = CommunityContext()
+    c.set_weighted_aspects(c.preset_contexts["West, 2010-2020"])
+    print(c.weighted_aspects)
+
+
+    # new_problem = gacvm.ProblemDefinition(gop.domains, gop)
+    #
+    # genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
+    # genetic_algorithm.is_ready
+    # genetic_algorithm.evolve()
+    # genetic_algorithm.population_fitness
+    pass
+    # CRÉATION DES OBJETS QT
+
+
+### RÉFÉRENCES ###
+
+# Problème similaire : le 0-1 Knapsack
+# https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
