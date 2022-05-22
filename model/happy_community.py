@@ -8,8 +8,9 @@ from __feature__ import snake_case, true_property
 
 
 class HappyCommunityProblem:
-    def __init__(self, community_context):
+    def __init__(self, community_context=None):
         self.__context = community_context
+        # self.__preset_contexts = np.array()
         self.__jobs_value = None
         self.generate_jobs_value()
         self.generate_domain()
