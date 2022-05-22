@@ -13,7 +13,7 @@ Public Hygiena: 500
 **
 Plus simple qu'une moyenne pondérée plutôt:
 Une approche de coût global/satisfaction globale
-Maximer la satisfaction globale
+Maximiser la satisfaction globale
 
 BEAUCOUP DE MOYENNE PONDÉRÉE
 **
