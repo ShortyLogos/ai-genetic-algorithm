@@ -25,6 +25,10 @@ class HappyCommunityProblem:
     def context(self, community):
         self.__context = community
 
+    @property
+    def domains(self):
+        return self.__domains
+
     def generate_jobs_value(self):
         """
         [0] -> Community Cost
@@ -76,8 +80,13 @@ class HappyCommunityProblem:
             [jobs[0]],
             [jobs[1]],
             [jobs[2]],
-            [jobs[3]]
+            [jobs[3]],
         ])
+
+        # On divise chaque résultat par la somme totale de population pour obtenir une proportion
+        self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 2)
+        print(self.__jobs_count)
+
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
         satisfaction = np.sum(aspects_weighted_scores) - sum_per_aspect[0]  # Soustraction par Community Cost
@@ -184,7 +193,7 @@ class CommunityContext:
     @property
     def preset_contexts(self):
         return {
-            "West, 2010-2020": np.array([0.3, 0.3, 0.4])
+            "West, 2010-2019": np.array([0.3, 0.3, 0.4])
         }
 
     @property
@@ -202,14 +211,24 @@ class CommunityContext:
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
     c = CommunityContext()
-    c.set_weighted_aspects(c.preset_contexts["West, 2010-2020"])
+    c.set_weighted_aspects(c.preset_contexts["West, 2010-2019"])
 
     hcp = HappyCommunityProblem(c)
-    sum_per_aspect = hcp.generate_sum_per_aspect()
-    aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
-    satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
+    #sum_per_aspect = hcp.generate_sum_per_aspect()
+    #aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
+    #satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
 
-    
+    new_problem = gacvm.ProblemDefinition(hcp.domains, hcp)
+
+    genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
+    genetic_algorithm.is_ready
+    genetic_algorithm.evolve()
+    print(genetic_algorithm.history.best_solution)
+    print(genetic_algorithm.history.best_fitness)
+    genetic_algorithm.population
+    pass
+
+
 
 ### RÉFÉRENCES ###
 
