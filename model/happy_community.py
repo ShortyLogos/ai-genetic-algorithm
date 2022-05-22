@@ -6,14 +6,23 @@ from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 from __feature__ import snake_case, true_property
 
+MIN_SATISFACTION = 0.00001
+
+"""
+Deux règles encadrent ce problème :
+1. Il faut au moins 1 individu de chaque métier dans la population
+2. Un métier ne peut être sureprésenté au-delà de 60%
+La taille de la communauté spécifiée demeure une approximation.
+L'algorithme effectue ses calculs dans l'ordre de grandeur spécifié.
+"""
+
 
 class HappyCommunityProblem:
     def __init__(self, community_context=None):
         self.__context = community_context
         self.__jobs_value = None
         self.__default_jobs = np.array([[3], [2], [2], [3]])
-        self.__jobs_count = np.array([[3], [2], [2], [3]])
-        # BONNE LIGNE self.__jobs_count = np.empty([1, 4]) # bracket supérieure = nbr de métiers
+        self.__jobs_count = np.empty([1, 4])  # bracket supérieure = nbr de métiers
         self.generate_jobs_value()
         self.generate_domain()
 
@@ -37,10 +46,10 @@ class HappyCommunityProblem:
         [3] -> Health
         """
         self.__jobs_value = np.array(
-            [[0.5, 0., 0., 0.8],  # Doctor
-             [0.375, 0.15, 0.35, 0.125],  # Engineer
-             [0.1, 0.6, 0., 0.05],  # Farmer
-             [0.025, 0.25, .65, 0.025]],  # Worker
+            [[0.35, 0., 0., 0.8],  # Doctor
+             [0.3, 0.1, 0.4, 0.125],  # Engineer
+             [0.2, 0.7, 0., 0.05],  # Farmer
+             [0.15, 0.1, 0.6, 0.025]],  # Worker
             dtype=float)
 
         self.__tags_jobs = np.array(
@@ -55,10 +64,10 @@ class HappyCommunityProblem:
         return np.sum(self.generate_jobs_scores(), axis=0)
 
     def generate_domain(self):
-        self.__doctor_count = (0., self.context.community_size)
-        self.__engineer_count = (0., self.context.community_size)
-        self.__farmer_count = (0., self.context.community_size)
-        self.__worker_count = (0., self.context.community_size)
+        self.__doctor_count = (1., self.context.community_size / 2)
+        self.__engineer_count = (1., self.context.community_size / 2)
+        self.__farmer_count = (1., self.context.community_size / 2)
+        self.__worker_count = (1., self.context.community_size / 2)
         self.__domains = gacvm.Domains(np.array([
             self.__doctor_count,
             self.__engineer_count,
@@ -76,6 +85,8 @@ class HappyCommunityProblem:
         2. Somme du résultat pondéré de chaque aspect - score du coût de communauté (community cost)
         somme de tous les scores pondérés des différents aspects de société
         """
+        satisfaction = 0.
+
         self.__jobs_count = np.array([
             [jobs[0]],
             [jobs[1]],
@@ -84,13 +95,18 @@ class HappyCommunityProblem:
         ])
 
         # On divise chaque résultat par la somme totale de population pour obtenir une proportion
-        self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 2)
-        print(self.__jobs_count)
-
+        self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        satisfaction = np.sum(aspects_weighted_scores) - sum_per_aspect[0]  # Soustraction par Community Cost
-        return umath.clamp(0, satisfaction, satisfaction)
+        if np.max(self.__jobs_count) > 0.6:
+            satisfaction = MIN_SATISFACTION
+        else:
+            satisfaction = np.sum(aspects_weighted_scores) - sum_per_aspect[0]  # Soustraction par Community Cost
+        return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
+
+    # fonction utilitaire de formatage pour obtenir des valeurs relatives
+    def format_solution(self, solution):
+        return np.around(solution[:] / np.sum(solution), 3)
 
 
 class SocioPoliticalContext:
@@ -193,7 +209,7 @@ class CommunityContext:
     @property
     def preset_contexts(self):
         return {
-            "West, 2010-2019": np.array([0.3, 0.3, 0.4])
+            "West, 2010-2019": np.array([0.275, 0.3, 0.425])
         }
 
     @property
@@ -214,21 +230,18 @@ if __name__ == '__main__':
     c.set_weighted_aspects(c.preset_contexts["West, 2010-2019"])
 
     hcp = HappyCommunityProblem(c)
-    #sum_per_aspect = hcp.generate_sum_per_aspect()
-    #aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
-    #satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
+    # sum_per_aspect = hcp.generate_sum_per_aspect()
+    # aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
+    # satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
 
     new_problem = gacvm.ProblemDefinition(hcp.domains, hcp)
 
     genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    genetic_algorithm.is_ready
     genetic_algorithm.evolve()
-    print(genetic_algorithm.history.best_solution)
-    print(genetic_algorithm.history.best_fitness)
-    genetic_algorithm.population
+
+    best_solution = hcp.format_solution(genetic_algorithm.history.best_solution)
+
     pass
-
-
 
 ### RÉFÉRENCES ###
 
