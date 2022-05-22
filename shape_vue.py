@@ -135,12 +135,12 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         modified_poly = t.map(self._optimisation_problem.polygon)
         painter = QPainter(qimage)
         if best:
-            painter.set_brush(Qt.cyan)
-            painter.set_pen(Qt.magenta)
+            painter.set_brush(QColor(176,33,33))
+            painter.set_pen(QColor(255,0,0))
             painter.draw_polygon(modified_poly, Qt.OddEvenFill)
         else:
             painter.set_brush(Qt.NoBrush)
-            painter.set_pen(Qt.red)
+            painter.set_pen(QColor(51,0,102))
             painter.draw_polygon(modified_poly, Qt.OddEvenFill)
         painter.end()       
 
