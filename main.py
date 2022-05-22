@@ -20,13 +20,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     ga_app = gaapp.QGAApp()
 
-    # ajout de vos stratégies
-    # -------------------------------------------------------- par exemple
-    # ga_app.add_crossover_strategy(my_awesome_strategy)
-    # ga_app.add_mutation_strategy(ma_spectaculaire_strategie)
-
-    # ajout de vos panneaux de résolution de problème
-    # -------------------------------------------------------- par exemple
+    # ajout de panneaux de résolution de problème
     ga_app.add_solution_panel(box_vue.BoxPanel())
     ga_app.add_solution_panel(shape_vue.ShapePanel())
     ga_app.add_solution_panel(community_vue.CommunityPanel())
