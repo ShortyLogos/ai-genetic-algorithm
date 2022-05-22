@@ -32,7 +32,7 @@ if __name__ == '__main__':
     ga_app.add_solution_panel(community_vue.CommunityPanel())
 
     # ajout de stratégies de mutation personnalisées
-    ga_app.add_mutation_strategy(cs.DoubleGenesStrategy)
+    ga_app.add_mutation_strategy(cs.WildGenesStrategy)
 
     ga_app.show()
     sys.exit(app.exec_())
