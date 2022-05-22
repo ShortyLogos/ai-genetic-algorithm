@@ -52,7 +52,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         visuBox_layout = QHBoxLayout(visuBox)
         self._image_visualization = QSimpleImage()
         self._graphic_generator = StackedBarWidget('Jobs', 'Distribution')
-        self._image_visualization.image = self._graphic_generator.img
+        self._image_visualization.image = self._graphic_generator.image
         visuBox_layout.add_widget(self._image_visualization)
 
         #### General layout and connections ####
