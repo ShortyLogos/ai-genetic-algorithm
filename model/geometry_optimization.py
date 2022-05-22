@@ -1,5 +1,4 @@
 import random
-
 import numpy as np
 import model.gacvm as gacvm
 import model.umath as umath
