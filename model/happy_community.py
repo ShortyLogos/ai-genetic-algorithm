@@ -131,7 +131,8 @@ class CommunityContext:
     """
     On doit faire appel à des setters pour les paramétrer
     """
-    def __init__(self, socio_political_context, community_size=200):
+    def __init__(self, socio_political_context=None, community_size=200):
+        self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
 
         # Traits de personnalité d'une communauté

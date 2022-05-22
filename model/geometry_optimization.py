@@ -10,14 +10,17 @@ from __feature__ import snake_case, true_property
 
 class GeometryOptimizationProblem:
 
-    def __init__(self, surface_width=500, surface_height=250, obstacles_count=200, min_obstacles=1):
+    def __init__(self, surface_width=500, surface_height=250, obstacles_count=0, min_obstacles=1):
         self.__surface = QRectF(0, 0, surface_width, surface_height)
         self.__polygon = None
-        self.__obstacles_count = obstacles_count
         self.__obstacles = []
         self.__min_obstacles = min_obstacles
         self.__max_obstacles = 0
         self.calculate_max_obstacles()
+        if obstacles_count == 0:
+            self.__obstacles_count = self.__max_obstacles / 2
+        else:
+            self.__obstacles_count = obstacles_count
         self.generate_obstacles()
         self.generate_domain()
 
