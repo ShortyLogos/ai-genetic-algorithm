@@ -1,5 +1,4 @@
 import gaapp
-import math
 from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
 from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpleImage
@@ -27,8 +26,8 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         form_widget = QWidget()
         paramsForm_layout = QFormLayout(form_widget)
 
-        self._image_width = 500
-        self._image_height = 250
+        self._image_width = self._optimisation_problem.surface.width()
+        self._image_height = self._optimisation_problem.surface.height()
 
         paramsForm_layout.add_row('Width', QLabel(str(self._image_width)))
         paramsForm_layout.add_row('Height', QLabel(str(self._image_height)))      
@@ -43,20 +42,20 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         
         min_vertex = self._shape_generator.min_vertex_count
         max_vertex = self._shape_generator.max_vertex_count
-        min_concavity = self._shape_generator.min_concavity
-        max_concavity = self._shape_generator.max_concavity
-        min_obstacle = self._optimisation_problem.min_obstacles
-        max_obstacle = self._optimisation_problem.max_obstacles
-
         self._vertex_widget, vertex_layout = create_scroll_int_value(min_vertex, min_vertex, max_vertex)
         paramsForm_layout.add_row('Vertex Count', vertex_layout)
         self._vertex_widget.valueChanged.connect(self.apply_custom)
         
+        min_concavity = self._shape_generator.min_concavity
+        max_concavity = self._shape_generator.max_concavity
         self._concavity_widget, concavity_layout = create_scroll_real_value(min_concavity, min_concavity, max_concavity, 2)
         paramsForm_layout.add_row('Concavity Ratio', concavity_layout)
         self._concavity_widget.valueChanged.connect(self.apply_custom)
         
-        self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, (math.ceil((max_obstacle-min_obstacle)/2)), max_obstacle)
+        min_obstacle = self._optimisation_problem.min_obstacles
+        start_obstacle = self._optimisation_problem.obstacles_count
+        max_obstacle = self._optimisation_problem.max_obstacles
+        self._obstacle_widget, obstacle_layout = create_scroll_int_value(min_obstacle, start_obstacle, max_obstacle)
         paramsForm_layout.add_row('Obstacles Count', obstacle_layout)
         self._obstacle_widget.valueChanged.connect(self.parameter_changed)
         

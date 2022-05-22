@@ -15,8 +15,11 @@ class StackedBarWidget():
         self._x_label = xLabel
         self._y_label = yLabel
         self._colors =np.array([(1, 1, 0),(1, 0, 1),(1, 0, 0),(.2, .2, .2),(.5, .2, .2),(.2, .5, .2),(.2, .5, .2),(.7, 1, .7),(.7, .5, .7),(.5, 1, .7),(.7, 1, .5)])
-        self.img = None
-        self.update_graphic()
+        self._img = self.update_graphic()
+
+    @property
+    def image(self):
+        return self._img
 
     @Slot()
     def update_graphic(self, width=500, height=250):
@@ -34,4 +37,4 @@ class StackedBarWidget():
 
         canvas.draw()
         w, h = canvas.get_width_height()
-        self.img = QImage(canvas.buffer_rgba(), w, h, w * 4, QImage.Format_ARGB32)
+        return QImage(canvas.buffer_rgba(), w, h, w * 4, QImage.Format_ARGB32)
