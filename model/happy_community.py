@@ -1,4 +1,4 @@
-######### Sommaire: Ce fichier contient l'algorithme génétique relié au problème trois pour etre instancié dans community_vue
+######### Sommaire: Problème no. 3 avec destiné à être instancié dans community_vue
 ######### Membres:
 ## Jean-Christophe Caron
 ## Samuel Horvath
@@ -8,6 +8,7 @@
 ### RÉFÉRENCES ###
 # Problème similaire : le 0-1 Knapsack
 # https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
+
 import random
 import numpy as np
 import model.gacvm as gacvm
@@ -15,11 +16,6 @@ import model.umath as umath
 from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 from __feature__ import snake_case, true_property
-
-### RÉFÉRENCES ###
-
-# Problème similaire : le 0-1 Knapsack
-# https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
 
 """
 UNE RÈGLE ENCADRE LE « HAPPY COMMUNITY PROBLEM » :
@@ -52,7 +48,7 @@ class HappyCommunityProblem:
         self.__context = community_context
         self.__jobs_value = None
         self.__default_jobs = np.array([[3], [2], [2], [3]])
-        self.__jobs_count = np.empty([1, 4])  # bracket supérieure = nbr de métiers
+        self.__jobs_count = np.empty([1, 16])  # bracket supérieure = nbr de métiers
         self.__max_single_job = 0.6
         self.generate_jobs_value()
         self.generate_domain()
@@ -70,39 +66,42 @@ class HappyCommunityProblem:
         return self.__domains
 
     @property
-    def max_single_job(self):
-        return self.__max_single_job
-
-    @max_single_job.setter
-    def max_single_job(self, val):
-        self.__max_single_job = umath.clamp(0, val, 1)
-
-    @property
     def jobs_tags(self):
         return np.array(
             ["Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",
              "Dentist", "Garbage Collector", "Spiritual Enforcer", "Laywer", "Nurse",
-             "Politician", "Teacher", "Police", "Military", "Therapist"]
+             "Politician", "Teacher", "Emergency", "Athlete", "Therapist"]
+            , dtype=np.str_)
+
+    @property
+    def aspects_tags(self):
+        return np.array(
+            ["Communtiy Cost", "Food Production", "Goods Production", "Health",
+             "Culture", "Entertainement", "Spirituality", "Stability", "Public Hygiene"]
             , dtype=np.str_)
 
     def generate_jobs_value(self):
         self.__jobs_value = np.array(
-            [[0.5, 0., 0., 0.775],  # Doctor
-             [0.3, 0.25, 0.4, 0.1475],  # Engineer
-             [0.065, 0.55, 0.025, 0.0075],  # Farmer
-             [0.05, 0.1, 0.575, 0.07]],  # Worker
+                [[0.10625,      0.05,   0.,     0.6,    0.,     0.,     0.,     0.075,   0.1],      # Doctor
+                 [0.0775,       0.15,   0.2,    0.07,   0.05,   0.1,    0.,     0.05,   0.05],      # Engineer
+                 [0.075625,     0.6,    0.,     0.005,  0.,     0.,     0.,     0.,     0.],        # Farmer
+                 [0.084375,     0.15,   0.5,    0.,     0.,     0.025,  0.,     0.,     0.],        # Worker
+                 [0.1125,       0.,     0.05,   0.05,   0.35,   0.45,   0.05,   0.,     0.],        # Artist
+                 [0.0375,       0.05,   0.1,    0.0015, 0.,     0.,     0.05,   0.,     0.1],       # Customer Service
+                 [0.035625,     0.,     0.,     0.07,   0.,     0.,     0.,     0.025,  0.215],     # Dentist
+                 [0.05625,      0.,     0.,     0.,     0.,     0.,     0.,     0.,     0.4],       # Garbage Collector
+                 [0.075,        0.,     0.,     0.,     0.,     0.05,   0.55,   0.005,  0.],        # Spiritual Leader
+                 [0.034375,     0.,     0.05,   0.,     0.05,   0.,     0.,     0.12,   0.],        # Lawyer
+                 [0.015,        0.,     0.,     0.12,   0.,     0.,     0.,     0.,     0.05],      # Nurse
+                 [0.0375,       0.,     0.1,    0.,     0.15,   0.,     0.,     0.05,   0.],        # Politician
+                 [0.05,         0.,     0.,     0.,     0.25,   0.1,    0.,     0.,     0.05],      # Teacher
+                 [0.0721875,    0.,     0.,     0.0225, 0.,     0.,     0.,     0.475,  0.],        # Emergency
+                 [0.06,         0.,     0.,     0.0035, 0.15,   0.225,  0.1,    0.,     0.],        # Athlete
+                 [0.0703125,    0.,     0.,     0.1075, 0.,     0.,     0.3,    0.1,    0.055]      # Therapist
+             ],
             dtype=float)
 
     def generate_jobs_scores(self):
-        # return self.__jobs_count[:, :] * self.__jobs_value[:, :]
-
-        # avec JC
-        # resulted_value = self.__jobs_value[:, :]
-        # resulted_value[:, 1:] = self.__jobs_count[:, :] * resulted_value[:, :]
-        # # pass
-        # # resulted_value[:, 0] = resulted_value[:, 0] ** (1/self.__jobs_count[0, :])
-        # return resulted_value
-
         resulted_value = self.__jobs_value.copy()
         resulted_value[:, 1:] = self.__jobs_count[:, :] * self.__jobs_value[:, 1:]
         resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1/self.__jobs_count[:, 0])
@@ -140,19 +139,39 @@ class HappyCommunityProblem:
             [jobs[1]],
             [jobs[2]],
             [jobs[3]],
+            [jobs[4]],
+            [jobs[5]],
+            [jobs[6]],
+            [jobs[7]],
+            [jobs[8]],
+            [jobs[9]],
+            [jobs[10]],
+            [jobs[11]],
+            [jobs[12]],
+            [jobs[13]],
+            [jobs[14]],
+            [jobs[15]]
         ])
 
         # On divise chaque résultat par la somme totale de population pour obtenir une proportion
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.uncertainty)  # Soustraction par Community Cost
+        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.socio_political_context.uncertainty)  # Soustraction par Community Cost
         satisfaction = umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
         return satisfaction
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
     def format_solution(self, solution):
         return np.around(solution[:] / np.sum(solution), 3)
+
+    @property
+    def max_single_job(self):
+        return self.__max_single_job
+
+    @max_single_job.setter
+    def max_single_job(self, val):
+        self.__max_single_job = umath.clamp(0, val, 1)
 
 
 class SocioPoliticalContext:
@@ -161,6 +180,7 @@ class SocioPoliticalContext:
         self.__life_expectancy_min = 15
         self.__life_expectancy_max = 110
         self.__aspects_influence = np.zeros([3], dtype=float)
+        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
         self.__events = {
             "Cultural Shift": False,
             "Economic Crisis": False,
@@ -212,6 +232,10 @@ class SocioPoliticalContext:
     def life_expectancy_max(self):
         return self.__life_expectancy_max
 
+    @property
+    def uncertainty(self):
+        return self.__uncertainty
+
 
 class CommunityContext:
     """
@@ -223,7 +247,6 @@ class CommunityContext:
         self.__community_size = float(community_size)
         self.__community_min_size = 50
         self.__community_max_size = 100000
-        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
 
         # Traits de personnalité d'une communauté
         self.__min_trait_value = 1.
@@ -242,8 +265,6 @@ class CommunityContext:
         self.__aspects = None
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
-
-
 
     @property
     def socio_political_context(self):
@@ -287,10 +308,6 @@ class CommunityContext:
     @property
     def max_trait_value(self):
         return self.__max_trait_value
-
-    @property
-    def uncertainty(self):
-        return self.__uncertainty
 
     @property
     def weighted_aspects(self):
