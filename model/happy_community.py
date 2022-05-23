@@ -6,12 +6,10 @@ from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 from __feature__ import snake_case, true_property
 
-MIN_SATISFACTION = 0.0001
-
 """
-DEUX RÈGLES ENCADRENT LE « HAPPY COMMUNITY PROBLEM » :
-    1. Il faut au moins 1 individu de chaque métier dans la population
-    2. Un métier ne peut être sureprésenté par défaut au-delà de 60%
+UNE RÈGLE ENCADRE LE « HAPPY COMMUNITY PROBLEM » :
+Il faut au moins 1 individu de chaque métier dans la population afin d'empêcher les divisions par zéro
+
 La taille de la communauté spécifiée demeure une approximation.
 L'algorithme effectue ses calculs dans l'ordre de grandeur spécifié,
 mais il est théoriquement possible d'obtenir pour une solution des valeurs extrêmement
@@ -24,7 +22,14 @@ Structure des tableaux numpy liés aux aspects de société:
 [1] -> Food Production
 [2] -> Goods Production
 [3] -> Health
+[4] -> Culture
+[5] -> Entertainement
+[6] -> Spirituality
+[7] -> Stability
+[8] -> Public Hyigene
 """
+ASPECTS_MODEL = np.empty([9])
+MIN_SATISFACTION = 0.0001
 
 
 class HappyCommunityProblem:
@@ -124,9 +129,7 @@ class HappyCommunityProblem:
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
         satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.uncertainty)  # Soustraction par Community Cost
-        pass
         satisfaction = umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
-        pass
         return satisfaction
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
@@ -144,8 +147,31 @@ class SocioPoliticalContext:
         self.__global_warming = False
         self.__epidemic = False
         self.__aspects_influence = np.zeros([3], dtype=float)
+        self.__events = {
+            "Cultural Shift": False,
+            "Economic Crisis": False,
+            "Political Instability": False,
+            "War Raging": False,
+            "Global Warming": False,
+            "Epidemic": False,
+        }
         self.generate_influence()
 
+    def generate_influence(self):
+        """
+        """
+        pass
+
+    @property
+    def events(self):
+        return self.__events
+
+    @events.setter
+    def events(self, events):
+        self.__events = events
+
+    def set_event(self, key, bool):
+        self.__events[key] = bool
 
     @property
     def life_expectancy(self):
@@ -203,11 +229,6 @@ class SocioPoliticalContext:
     def epidemic(self, bool):
         self.__global_warming = bool
 
-    def generate_influence(self):
-        """
-
-        """
-
 
 class CommunityContext:
     """
@@ -232,6 +253,14 @@ class CommunityContext:
         self.__aspects = None
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
+
+    @property
+    def socio_political_context(self):
+        return self.__socio_political_context
+
+    @socio_political_context.setter
+    def socio_political_context(self, socio_political_context):
+        self.__socio_political_context = socio_political_context
 
     @property
     def community_size(self):
