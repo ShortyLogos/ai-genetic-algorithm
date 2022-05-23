@@ -1,3 +1,10 @@
+######### Sommaire: Ce fichier contient tous les éléments reliés au problème deux(geometry_optimization) pour le mettre dans le gaapp
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:18/05/2022
 import gaapp
 from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
