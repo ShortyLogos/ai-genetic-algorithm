@@ -1,3 +1,10 @@
+######### Sommaire: Ce fichier contient une stratégie de mutation de gêne qu'on a inventé
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:15/05/2022
 from model.gacvm import MutationStrategy
 import numpy as np
 

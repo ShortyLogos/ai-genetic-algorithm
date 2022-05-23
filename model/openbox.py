@@ -1,3 +1,10 @@
+######### Sommaire: Ce fichier contient l'algorithme génétique relié au problème un pour etre instancié dans boite_vue
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:13/05/2022
 import numpy as np
 import model.gacvm as gacvm
 import model.umath as umath

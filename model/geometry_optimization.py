@@ -1,3 +1,10 @@
+######### Sommaire: Ce fichier contient l'algorithme génétique relié au problème deux pour etre instancié dans shape_vue
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:18/05/2022
 import random
 import numpy as np
 import model.gacvm as gacvm
