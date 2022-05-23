@@ -49,7 +49,8 @@ class SocioPoliticalContext:
         self.__life_expectancy_min = 15
         self.__life_expectancy_max = 110
         self.__aspects_influence = np.zeros([3], dtype=float)
-        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
+        self._scenario_base = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]) # facteur incertitude de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
+        #le facteur est le dernier chiffre du __scenario_base
         self.__events = {
             "Cultural Shift": False,
             "Economic Crisis": False,
@@ -69,12 +70,25 @@ class SocioPoliticalContext:
         self.generate_influence()
 
     def generate_influence(self):
-        self.__scenario_base = np.array([1,1,1,1,1,1,1,1,1])
+        self.generate_events()
+        self.life_expectancy_influence()
+    def generate_events(self):
         events = self.__events.keys()
         for key in events:
             if self.__events[key]:
-                self.__scenario_base += self.__events_values[key]
-        return self.__scenario_base
+                self._scenario_base += self.__events_values[key]
+        return self._scenario_base
+    def life_expectancy_influence(self):
+        if self.__life_expectancy<30:
+            self._scenario_base +=  np.array([.05, -.05, -.05, -.05, -.05, 0, -.2, -.05, .25])
+        elif self.__life_expectancy <50:
+            self._scenario_base += np.array([.05, .05, -.05, .05, .05, 0.05, 0, 0, 0])
+        elif self.__life_expectancy <70:
+            self._scenario_base += np.array([0, .05, 0, -.05, -.05, .15, -.1, .05, -.1])
+        elif self.__life_expectancy <90:
+            self._scenario_base += np.array([0, 0.1, .05, .1, -.05, .25, -.15, .05, -.15])
+        else:
+            self._scenario_base += np.array([0, .15, .1, .15, -.05, .3, -.2, .1, -.2])
 
     @property
     def events(self):
