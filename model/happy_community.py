@@ -1,3 +1,13 @@
+######### Sommaire: Ce fichier contient l'algorithme génétique relié au problème trois pour etre instancié dans community_vue
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:20/05/2022
+### RÉFÉRENCES ###
+# Problème similaire : le 0-1 Knapsack
+# https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
 import random
 import numpy as np
 import model.gacvm as gacvm
