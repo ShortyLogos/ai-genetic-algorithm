@@ -10,7 +10,7 @@ import gaapp
 from model.gacvm import Parameters, ProblemDefinition
 
 from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QCheckBox
 from uqtwidgets import create_scroll_int_value, QSimpleImage
 from stacked_graphic import StackedBarWidget
 
@@ -26,7 +26,6 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         super().__init__(parent)
         self._main_layout = QHBoxLayout()
         self.set_layout(self._main_layout)
-        #self._modele = modele()                ######    Context, Personality     ######
         #self._problem = modeleProblem()        ######  Size et autres différents  ######
 
         #### Parameters ####
@@ -41,29 +40,38 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         self._size_widget, size_layout = create_scroll_int_value(min_commu_size, initial, max_commu_size)
         self._size_widget.valueChanged.connect(self.parameter_changed)
         paramsForm_layout.add_row('Community Size', size_layout)
-        
+
         self._context_dropdown = QComboBox()
         """
-        for context in self._modele:
+        for context in self._problem.context:
             self._context_dropdown.add_item(context.name, context.data)
         """
         self._context_dropdown.add_item("Custom")
         self._context_dropdown.currentIndexChanged.connect(self.__context_changed)
         paramsForm_layout.add_row('Context', self._context_dropdown)
         
+        criterias = {
+            'Pauvre': True,
+            'Malade': True,
+            'Egalitarian': False,
+            'Violent': True,
+            'Radioactif': True,
+            'Monarchie': True
+        } #self._problem.context.events
+        
         paramsBox_layout.add_widget(form_widget)
+
+        for key in criterias.keys():
+            paramsBox_layout.add_widget(QCheckBox(key, self))
+        
         paramsBox_layout.add_stretch()
 
         #### Visualization ####
         visuBox = QGroupBox("Visualization")
         visuBox_layout = QHBoxLayout(visuBox)
         self._image_visualization = QSimpleImage()
-        categories = [
-            'Doctor', 'Engineer', 'Farmer', 'Worker', 'Teacher', 'Garb. Col.', 'Lawyer', 'quatorze',
-            'Police', 'Politician', 'Gravedigger', 'Cst.', 'Dentist', 'Therapist', 'Fuck', 'quinze'
-        ]
-        self._graphic_generator = StackedBarWidget(categories)
-        self._image_visualization.image = self._graphic_generator.image
+        categories = None #self._problem.jobs
+        self._graphic_generator = StackedBarWidget(categories, 700, 300)
         visuBox_layout.add_widget(self._image_visualization)
 
         #### General layout and connections ####
@@ -127,5 +135,11 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         '''
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
-        #self._graphic_generator.update_graphic()
-        #self._image_visualization = self._graphic_generator.img
+        if ga:
+            data = {
+                'Best': self._problem.format_solution(ga.history.history[:,0]),
+                'Average': self._problem.format_solution(ga.history.history[:,2]),
+                'Worst': self._problem.format_solution(ga.history.history[:,1]),
+                }
+            self._graphic_generator.update_graphic(data)
+            self._image_visualization = self._graphic_generator.image
