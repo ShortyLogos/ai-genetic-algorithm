@@ -1,5 +1,12 @@
+######### Sommaire: Ce fichier dessine le graphique pour notre troisième problème(happy_community)
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:23/05/2022
+######### Référence: https://matplotlib.org/stable/gallery/lines_bars_and_markers/horizontal_barchart_distribution.html
 import numpy as np
-
 from PySide6 import QtCore, QtGui
 from PySide6.QtCore import Slot
 from PySide6.QtGui import QImage
@@ -20,7 +27,7 @@ class StackedBarWidget():
     @property
     def image(self):
         return self._img
-
+    
     @Slot()
     def update_graphic(self, data=None):
         if data:

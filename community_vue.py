@@ -1,3 +1,10 @@
+######### Sommaire: Ce fichier contient tous les éléments reliés au problème trois(happy_community) pour le mettre dans le gaapp
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:23/05/2022
 import math
 import gaapp
 from model.gacvm import Parameters, ProblemDefinition

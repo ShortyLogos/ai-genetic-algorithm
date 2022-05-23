@@ -1,9 +1,15 @@
+######### Sommaire: Ce fichier contient tous les éléments reliés au problème un(openbox) pour le mettre dans le gaapp
+######### Membres:
+## Jean-Christophe Caron
+## Samuel Horvath
+## Déric Marchand
+## Karl Robillard Marchand
+######### Date de création:13/05/2022
 import gaapp
 import math
 from model.gacvm import Parameters, ProblemDefinition, GeneticAlgorithm
 from model.openbox import OpenBoxProblem
 from uqtwidgets import create_scroll_real_value, QSimpleImage
-
 from PySide6.QtCore import Qt, Signal, Slot
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout
 from PySide6.QtGui import (QImage, QPainter, QPen, QColor, QBrush)
