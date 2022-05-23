@@ -237,12 +237,13 @@ class CommunityContext:
         self.__community_max_size = 100000
 
         # Traits de personnalité d'une communauté
+        self.__default_trait_value = 3.
         self.__min_trait_value = 1.
         self.__max_trait_value = 10.
         self.__community_traits = {
-            "Religious Sentiment": 3.,
-            "Domestic Stability": 3.,
-            "Education Rate": 3.
+            "Religious Sentiment": self.__default_trait_value,
+            "Domestic Stability": self.__default_trait_value,
+            "Education Rate": self.__default_trait_value
         }
 
         # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
@@ -296,6 +297,10 @@ class CommunityContext:
     @property
     def max_trait_value(self):
         return self.__max_trait_value
+
+    @property
+    def default_trait_value(self):
+        return self.__default_trait_value
 
     @property
     def weighted_aspects(self):
