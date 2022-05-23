@@ -7,6 +7,11 @@ from PySide6.QtGui import QPolygonF, QTransform
 
 from __feature__ import snake_case, true_property
 
+### RÉFÉRENCES ###
+
+# Calcul de l'aire d'un QPolygonF
+# https://stackoverflow.com/questions/67558984/how-calculate-qpolygon-area
+
 
 class GeometryOptimizationProblem:
 
@@ -199,9 +204,3 @@ class ShapeGenerator:
             xc = np.cos(thetar) * self.__r
             yc = np.sin(thetar) * self.__r
             self.__shape[i * 2 + 1] = QPointF(xc, yc)
-
-
-### RÉFÉRENCES ###
-
-# Calcul de l'aire d'un QPolygonF
-# https://stackoverflow.com/questions/67558984/how-calculate-qpolygon-area

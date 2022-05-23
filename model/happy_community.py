@@ -6,6 +6,11 @@ from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 from __feature__ import snake_case, true_property
 
+### RÉFÉRENCES ###
+
+# Problème similaire : le 0-1 Knapsack
+# https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
+
 """
 UNE RÈGLE ENCADRE LE « HAPPY COMMUNITY PROBLEM » :
 Il faut au moins 1 individu de chaque métier dans la population afin d'empêcher les divisions par zéro
@@ -62,6 +67,14 @@ class HappyCommunityProblem:
     def max_single_job(self, val):
         self.__max_single_job = umath.clamp(0, val, 1)
 
+    @property
+    def jobs_tags(self):
+        return np.array(
+            ["Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",
+             "Dentist", "Garbage Collector", "Spiritual Enforcer", "Laywer", "Nurse",
+             "Politician", "Teacher", "Police", "Military", "Therapist"]
+            , dtype=np.str_)
+
     def generate_jobs_value(self):
         self.__jobs_value = np.array(
             [[0.5, 0., 0., 0.775],  # Doctor
@@ -69,11 +82,6 @@ class HappyCommunityProblem:
              [0.065, 0.55, 0.025, 0.0075],  # Farmer
              [0.05, 0.1, 0.575, 0.07]],  # Worker
             dtype=float)
-
-        self.__tags_jobs = np.array(
-            ["Doctor", "Engineer", "Farmer", "Worker"]
-            , dtype=np.str_
-        )
 
     def generate_jobs_scores(self):
         # return self.__jobs_count[:, :] * self.__jobs_value[:, :]
@@ -140,12 +148,8 @@ class HappyCommunityProblem:
 class SocioPoliticalContext:
     def __init__(self, life_expectancy=60):
         self.__life_expectancy = life_expectancy
-        self.__cultural_shift = False
-        self.__economic_crisis = False
-        self.__political_instability = False
-        self.__war_raging = False
-        self.__global_warming = False
-        self.__epidemic = False
+        self.__life_expectancy_min = 15
+        self.__life_expectancy_max = 110
         self.__aspects_influence = np.zeros([3], dtype=float)
         self.__events = {
             "Cultural Shift": False,
@@ -153,9 +157,10 @@ class SocioPoliticalContext:
             "Political Instability": False,
             "War Raging": False,
             "Global Warming": False,
-            "Epidemic": False,
+            "Epidemic": False
         }
         self.generate_influence()
+
 
     def generate_influence(self):
         """
@@ -165,10 +170,6 @@ class SocioPoliticalContext:
     @property
     def events(self):
         return self.__events
-
-    @events.setter
-    def events(self, events):
-        self.__events = events
 
     def set_event(self, key, bool):
         self.__events[key] = bool
@@ -182,52 +183,10 @@ class SocioPoliticalContext:
         self.__life_expectancy = val
 
     @property
-    def cultural_shift(self):
-        return self.__cultural_shift
+    def life_expectancy_min(self):
+        return self.__life_expectancy_min
 
-    @cultural_shift.setter
-    def cultural_shift(self, bool):
-        self.__cultural_shift = bool
 
-    @property
-    def economic_crisis(self):
-        return self.__economic_crisis
-
-    @economic_crisis.setter
-    def economic_crisis(self, bool):
-        self.__economic_crisis = bool
-
-    @property
-    def political_instability(self):
-        return self.__political_instability
-
-    @political_instability.setter
-    def political_instability(self, bool):
-        self.__political_instability = bool
-
-    @property
-    def war_raging(self):
-        return self.__war_raging
-
-    @war_raging.setter
-    def war_raging(self, bool):
-        self.__war_raging = bool
-
-    @property
-    def global_warming(self):
-        return self.__global_warming
-
-    @global_warming.setter
-    def global_warming(self, bool):
-        self.__global_warming = bool
-
-    @property
-    def epidemic(self):
-        return self.__global_warming
-
-    @epidemic.setter
-    def epidemic(self, bool):
-        self.__global_warming = bool
 
 
 class CommunityContext:
@@ -238,6 +197,8 @@ class CommunityContext:
     def __init__(self, socio_political_context=None, community_size=200):
         self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
+        self.__community_min_size = 50
+        self.__community_max_size = 100000
         self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
 
         # Traits de personnalité d'une communauté
@@ -271,10 +232,16 @@ class CommunityContext:
         self.__community_size = size
 
     @property
-    def preset_contexts(self):
-        return {
-            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
-        }
+    def community_min_size(self):
+        return self.__community_min_size
+
+    @property
+    def community_max_size(self):
+        return self.__community_max_size
+
+    @community_max_size.setter
+    def community_max_size(self, val):
+        self.__community_max_size = val
 
     @property
     def uncertainty(self):
@@ -287,6 +254,12 @@ class CommunityContext:
     @property
     def weighted_aspects(self):
         return self.__weighted_aspects
+
+    @property
+    def preset_contexts(self):
+        return {
+            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
+        }
 
     def set_weighted_aspects(self, aspects_array):
         self.__weighted_aspects = aspects_array
@@ -316,8 +289,3 @@ if __name__ == '__main__':
     print(genetic_algorithm.history.best_solution)
     print(best_solution)
     pass
-
-### RÉFÉRENCES ###
-
-# Problème similaire : le 0-1 Knapsack
-# https://medium.com/koderunners/genetic-algorithm-part-3-knapsack-problem-b59035ddd1d6
