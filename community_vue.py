@@ -44,9 +44,9 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         self._context_dropdown.currentIndexChanged.connect(self.__context_changed)
         paramsForm_layout.add_row('Context', self._context_dropdown)
 
-        min_commu_size = self._problem.community_min_size
-        max_commu_size = self._problem.community_max_size
-        initial = self._problem.community_size
+        min_commu_size = self._problem.context.community_min_size
+        max_commu_size = self._problem.context.community_max_size
+        initial = self._problem.context.community_size
         self._size_widget, size_layout = create_scroll_int_value(min_commu_size, initial, max_commu_size)
         self._size_widget.valueChanged.connect(self.parameter_changed)
         paramsForm_layout.add_row('Community Size', size_layout)
@@ -75,7 +75,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         paramsBox_layout.add_widget(form_widget)
 
         self.__checkbox_list = []
-        criterias = self._problem.context.events
+        criterias = self._problem.context.socio_political_context.events
         for key in criterias.keys():
             checkbox = QCheckBox(key, self)
             checkbox.toggled.connect(self.apply_custom)
@@ -121,11 +121,11 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
     def _update_problem(self):
         self._problem.context.community_size = self._size_widget.value
         self._problem.context.socio_political_context.life_expectancy = self._life_widget.value
-        self._problem.context.set_community_trait(self._religious_widget.text, self._religious_widget.value)
-        self._problem.context.set_community_trait(self._domestic_widget.text, self._domestic_widget.value)
-        self._problem.context.set_community_trait(self._education_widget.text, self._education_widget.value)
+        self._problem.context.set_community_trait('Religious Sentiment', self._religious_widget.value)
+        self._problem.context.set_community_trait('Domestic Stability', self._domestic_widget.value)
+        self._problem.context.set_community_trait('Education Rate', self._education_widget.value)
         for checkbox in self.__checkbox_list:
-            self._problem.context.socio_political_context.set_event(checkbox.text, checkbox.isChecked()) 
+            self._problem.context.socio_political_context.set_event(checkbox.text, checkbox.check_state()) 
 
     @property
     def name(self):
