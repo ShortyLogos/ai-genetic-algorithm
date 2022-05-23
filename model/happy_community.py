@@ -6,14 +6,24 @@ from PySide6.QtCore import Qt, Slot, Signal, QSize, QPointF, QRectF
 from PySide6.QtGui import QPolygonF, QTransform
 from __feature__ import snake_case, true_property
 
-MIN_SATISFACTION = 0.00001
+MIN_SATISFACTION = 0.0001
 
 """
-Deux règles encadrent ce problème :
-1. Il faut au moins 1 individu de chaque métier dans la population
-2. Un métier ne peut être sureprésenté au-delà de 60%
+DEUX RÈGLES ENCADRENT LE « HAPPY COMMUNITY PROBLEM » :
+    1. Il faut au moins 1 individu de chaque métier dans la population
+    2. Un métier ne peut être sureprésenté par défaut au-delà de 60%
 La taille de la communauté spécifiée demeure une approximation.
-L'algorithme effectue ses calculs dans l'ordre de grandeur spécifié.
+L'algorithme effectue ses calculs dans l'ordre de grandeur spécifié,
+mais il est théoriquement possible d'obtenir pour une solution des valeurs extrêmement
+éloignées de la taille de la communauté spécifiée.
+"""
+
+"""
+Structure des tableaux numpy liés aux aspects de société:
+[0] -> Community Cost
+[1] -> Food Production
+[2] -> Goods Production
+[3] -> Health
 """
 
 
@@ -48,17 +58,11 @@ class HappyCommunityProblem:
         self.__max_single_job = umath.clamp(0, val, 1)
 
     def generate_jobs_value(self):
-        """
-        [0] -> Community Cost
-        [1] -> Food Production
-        [2] -> Goods Production
-        [3] -> Health
-        """
         self.__jobs_value = np.array(
-            [[0.425, 0., 0., 0.775],  # Doctor
-             [0.27, 0.25, 0.4, 0.1475],  # Engineer
-             [0.1775, 0.55, 0., 0.0075],  # Farmer
-             [0.1275, 0.1, 0.6, 0.07]],  # Worker
+            [[0.5, 0., 0., 0.775],  # Doctor
+             [0.3, 0.25, 0.4, 0.1475],  # Engineer
+             [0.065, 0.55, 0.025, 0.0075],  # Farmer
+             [0.05, 0.1, 0.575, 0.07]],  # Worker
             dtype=float)
 
         self.__tags_jobs = np.array(
@@ -67,16 +71,28 @@ class HappyCommunityProblem:
         )
 
     def generate_jobs_scores(self):
-        return self.__jobs_count[:, :] * self.__jobs_value[:, :]
+        # return self.__jobs_count[:, :] * self.__jobs_value[:, :]
+
+        # avec JC
+        # resulted_value = self.__jobs_value[:, :]
+        # resulted_value[:, 1:] = self.__jobs_count[:, :] * resulted_value[:, :]
+        # # pass
+        # # resulted_value[:, 0] = resulted_value[:, 0] ** (1/self.__jobs_count[0, :])
+        # return resulted_value
+
+        resulted_value = self.__jobs_value.copy()
+        resulted_value[:, 1:] = self.__jobs_count[:, :] * self.__jobs_value[:, 1:]
+        resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1/self.__jobs_count[:, 0])
+        return resulted_value
 
     def generate_sum_per_aspect(self):
         return np.sum(self.generate_jobs_scores(), axis=0)
 
     def generate_domain(self):
-        self.__doctor_count = (1., self.context.community_size / 2)
-        self.__engineer_count = (1., self.context.community_size / 2)
-        self.__farmer_count = (1., self.context.community_size / 2)
-        self.__worker_count = (1., self.context.community_size / 2)
+        self.__doctor_count = (1., self.context.community_size)
+        self.__engineer_count = (1., self.context.community_size)
+        self.__farmer_count = (1., self.context.community_size)
+        self.__worker_count = (1., self.context.community_size)
         self.__domains = gacvm.Domains(np.array([
             self.__doctor_count,
             self.__engineer_count,
@@ -87,7 +103,7 @@ class HappyCommunityProblem:
 
     def __call__(self, jobs):
         """
-        calcul de l'indice de satisfaction :
+        Calcul de l'indice de satisfaction :
         1. Calcul de la somme pondérée de chaque aspect:
             - Multiplication du nombre de jobs * valeur de l'aspect concerné par scalaire
             - Somme de ces résultats * pondération
@@ -107,11 +123,11 @@ class HappyCommunityProblem:
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        if np.max(self.__jobs_count) > self.__max_single_job:
-            satisfaction = MIN_SATISFACTION
-        else:
-            satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.incertitude)  # Soustraction par Community Cost
-        return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
+        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.uncertainty)  # Soustraction par Community Cost
+        pass
+        satisfaction = umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
+        pass
+        return satisfaction
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
     def format_solution(self, solution):
@@ -127,6 +143,9 @@ class SocioPoliticalContext:
         self.__war_raging = False
         self.__global_warming = False
         self.__epidemic = False
+        self.__aspects_influence = np.zeros([3], dtype=float)
+        self.generate_influence()
+
 
     @property
     def life_expectancy(self):
@@ -184,6 +203,11 @@ class SocioPoliticalContext:
     def epidemic(self, bool):
         self.__global_warming = bool
 
+    def generate_influence(self):
+        """
+
+        """
+
 
 class CommunityContext:
     """
@@ -193,18 +217,19 @@ class CommunityContext:
     def __init__(self, socio_political_context=None, community_size=200):
         self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
+        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
 
         # Traits de personnalité d'une communauté
-        self.__incertitude = 1 # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
         self.__religious_sentiment = 3.
         self.__domestic_stability = 3.5
         self.__education_rate = 3.8
 
         # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
         # self.__community_cost = ... la pondération du CC est toujours de 1
-        self.__health = 0.
-        self.__food_production = 0.
-        self.__goods_production = 0.
+        self.__health = 1.
+        self.__food_production = 1.
+        self.__goods_production = 1.
+        self.__aspects = None
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
 
@@ -219,16 +244,16 @@ class CommunityContext:
     @property
     def preset_contexts(self):
         return {
-            "West, 2010-2019": np.array([0.3, 0.325, 0.375])
+            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
         }
 
     @property
-    def incertitude(self):
-        return self.__incertitude
+    def uncertainty(self):
+        return self.__uncertainty
 
-    @incertitude.setter
-    def incertitude(self, val):
-        self.__incertitude = umath.clamp(0, val, 2)
+    @uncertainty.setter
+    def uncertainty(self, val):
+        self.__uncertainty = umath.clamp(0, val, 2)
 
     @property
     def weighted_aspects(self):
@@ -259,8 +284,8 @@ if __name__ == '__main__':
 
     best_solution = hcp.format_solution(genetic_algorithm.history.best_solution)
     print(genetic_algorithm.history.best_fitness)
+    print(genetic_algorithm.history.best_solution)
     print(best_solution)
-
     pass
 
 ### RÉFÉRENCES ###
