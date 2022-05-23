@@ -214,9 +214,13 @@ class CommunityContext:
         self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
 
         # Traits de personnalité d'une communauté
-        self.__religious_sentiment = 3.
-        self.__domestic_stability = 3.5
-        self.__education_rate = 3.8
+        self.__min_trait_value = 1.
+        self.__max_trait_value = 10.
+        self.__community_traits = {
+            "Religious Sentiment": 3.,
+            "Domestic Stability": 3.,
+            "Education Rate": 3.
+        }
 
         # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
         # self.__community_cost = ... la pondération du CC est toujours de 1
@@ -227,13 +231,19 @@ class CommunityContext:
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
 
+        [3, 2, 5.5,]
+        [+1, -0.2, +3, ...]
+
+        [4, 1.8, 3, 49]
+
+
     @property
     def socio_political_context(self):
         return self.__socio_political_context
 
     @socio_political_context.setter
-    def socio_political_context(self, socio_political_context):
-        self.__socio_political_context = socio_political_context
+    def socio_political_context(self, sp_context):
+        self.__socio_political_context = sp_context
 
     @property
     def community_size(self):
@@ -256,12 +266,23 @@ class CommunityContext:
         self.__community_max_size = val
 
     @property
+    def community_traits(self):
+        return self.__community_traits
+
+    def set_community_trait(self, key, val):
+        self.__community_traits[key] = umath.clamp(self.__min_trait_value, val, self.__max_trait_value)
+
+    @property
+    def min_trait_value(self):
+        return self.__min_trait_value
+
+    @property
+    def max_trait_value(self):
+        return self.__max_trait_value
+
+    @property
     def uncertainty(self):
         return self.__uncertainty
-
-    @uncertainty.setter
-    def uncertainty(self, val):
-        self.__uncertainty = umath.clamp(0, val, 2)
 
     @property
     def weighted_aspects(self):
