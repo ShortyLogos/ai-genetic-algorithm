@@ -49,8 +49,8 @@ class SocioPoliticalContext:
         self.__life_expectancy_min = 15
         self.__life_expectancy_max = 110
         self.__aspects_influence = np.zeros([3], dtype=float)
-        self._scenario_base = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0]) # facteur incertitude de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
-        #le facteur est le dernier chiffre du __scenario_base
+        self.__uncertainty = 1 # plus ce degré est élevé, plus le sentiment d'incertitde est élevé au sein de la population
+        self.__influence = np.array([.0, .0, .0, .0, .0, .0, .0, .0, .0]) # le dernier indice influence le degré d'incertitude
         self.__events = {
             "Cultural Shift": False,
             "Economic Crisis": False,
@@ -59,36 +59,46 @@ class SocioPoliticalContext:
             "Global Warming": False,
             "Epidemic": False
         }
-        self.__events_values={
-            "Cultural Shift": np.array([0, 0, 0,.3,.2,.1,-.2,0,-.3]),
-            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0,.1]),
-            "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1,.15]),
-            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0,.2]),
-            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0,.1]),
-            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2,.2])
+        self.__events_values = {
+            "Cultural Shift": np.array([0, 0, 0, .3, .2, .1, -.2,  -0.25, -.05]),
+            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0, .1]),
+            "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1, .125]),
+            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0, .4]),
+            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0, .15]),
+            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2, .2])
         }
         self.generate_influence()
 
     def generate_influence(self):
         self.generate_events()
-        self.life_expectancy_influence()
+        self.life_expectancy_impact()
+
     def generate_events(self):
         events = self.__events.keys()
         for key in events:
             if self.__events[key]:
-                self._scenario_base += self.__events_values[key]
-        return self._scenario_base
-    def life_expectancy_influence(self):
-        if self.__life_expectancy<30:
-            self._scenario_base +=  np.array([.05, -.05, -.05, -.05, -.05, 0, -.2, -.05, .25])
-        elif self.__life_expectancy <50:
-            self._scenario_base += np.array([.05, .05, -.05, .05, .05, 0.05, 0, 0, 0])
-        elif self.__life_expectancy <70:
-            self._scenario_base += np.array([0, .05, 0, -.05, -.05, .15, -.1, .05, -.1])
-        elif self.__life_expectancy <90:
-            self._scenario_base += np.array([0, 0.1, .05, .1, -.05, .25, -.15, .05, -.15])
+                self.__influence += self.__events_values[key]
+        return self.__influence
+
+    def life_expectancy_impact(self):
+        if self.__life_expectancy < 20:
+            self.__influence += np.array([.1, -.2, -.07, -.2, -.2, .2, .175, -.1, .4])
+        elif self.__life_expectancy < 30:
+            self.__influence += np.array([.07, -.1, -.05, -.1, -.1, .1, .1, -.1, .25])
+        elif self.__life_expectancy < 40:
+            self.__influence += np.array([.05, -.035, -.05, .0, -.1, .1, -.2, -.05, .08])
+        elif self.__life_expectancy < 50:
+            self.__influence += np.array([.04, .0, -.05, .0, .05, .05, 0, -.02, .02])
+        elif self.__life_expectancy < 60:
+            self.__influence += np.array([.0, .025, .015, .025, .055, .0, 0, 0, 0])
+        elif self.__life_expectancy < 70:
+            self.__influence += np.array([.01, .035, 0, .07, .06, .025, .0, .025, -.005])
+        elif self.__life_expectancy < 80:
+            self.__influence += np.array([.02, .04, 0, .08, .075, .05, -.05, .05, -.015])
+        elif self.__life_expectancy < 90:
+            self.__influence += np.array([.03, .05, .05, .1, .095, .08, -.075, .08, -.05])
         else:
-            self._scenario_base += np.array([0, .15, .1, .15, -.05, .3, -.2, .1, -.2])
+            self.__influence += np.array([.04, .06, .1, .15, .1, .15, -.1, .1, -.1])
 
     @property
     def events(self):
@@ -184,6 +194,10 @@ class CommunityContext:
         self.__community_traits[key] = umath.clamp(self.__min_trait_value, val, self.__max_trait_value)
 
     @property
+    def default_trait_value(self):
+        return self.__default_trait_value
+
+    @property
     def min_trait_value(self):
         return self.__min_trait_value
 
@@ -192,17 +206,13 @@ class CommunityContext:
         return self.__max_trait_value
 
     @property
-    def default_trait_value(self):
-        return self.__default_trait_value
-
-    @property
     def weighted_aspects(self):
         return self.__weighted_aspects
 
     @property
     def preset_contexts(self):
         return {
-            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
+            "West, 2010-2019": np.array([0.125, 0.145, 0.105, 0.125, 0.125, 0.125, 0.125, 0.125])
         }
 
     @property
@@ -248,7 +258,7 @@ class HappyCommunityProblem:
     def jobs_tags(self):
         return np.array(
             ["Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",
-             "Dentist", "Garbage Collector", "Spiritual Enforcer", "Laywer", "Nurse",
+             "Dentist", "Garbage Collector", "Spiritual Leader", "Lawyer", "Nurse",
              "Politician", "Teacher", "Emergency", "Athlete", "Therapist"]
             , dtype=np.str_)
 
@@ -261,29 +271,29 @@ class HappyCommunityProblem:
 
     def generate_jobs_value(self):
         self.__jobs_value = np.array(
-                [[0.10625,      0.05,   0.,     0.6,    0.,     0.,     0.,     0.075,   0.1],      # Doctor
-                 [0.0775,       0.15,   0.2,    0.07,   0.05,   0.1,    0.,     0.05,   0.05],      # Engineer
-                 [0.075625,     0.6,    0.,     0.005,  0.,     0.,     0.,     0.,     0.],        # Farmer
-                 [0.084375,     0.15,   0.5,    0.,     0.,     0.025,  0.,     0.,     0.],        # Worker
-                 [0.1125,       0.,     0.05,   0.05,   0.35,   0.45,   0.05,   0.,     0.],        # Artist
-                 [0.0375,       0.05,   0.1,    0.0015, 0.,     0.,     0.05,   0.,     0.1],       # Customer Service
-                 [0.035625,     0.,     0.,     0.07,   0.,     0.,     0.,     0.025,  0.215],     # Dentist
-                 [0.05625,      0.,     0.,     0.,     0.,     0.,     0.,     0.,     0.4],       # Garbage Collector
-                 [0.075,        0.,     0.,     0.,     0.,     0.05,   0.55,   0.005,  0.],        # Spiritual Leader
-                 [0.034375,     0.,     0.05,   0.,     0.05,   0.,     0.,     0.12,   0.],        # Lawyer
-                 [0.015,        0.,     0.,     0.12,   0.,     0.,     0.,     0.,     0.05],      # Nurse
-                 [0.0375,       0.,     0.1,    0.,     0.15,   0.,     0.,     0.05,   0.],        # Politician
-                 [0.05,         0.,     0.,     0.,     0.25,   0.1,    0.,     0.,     0.05],      # Teacher
-                 [0.0721875,    0.,     0.,     0.0225, 0.,     0.,     0.,     0.475,  0.],        # Emergency
-                 [0.06,         0.,     0.,     0.0035, 0.15,   0.225,  0.1,    0.,     0.],        # Athlete
-                 [0.0703125,    0.,     0.,     0.1075, 0.,     0.,     0.3,    0.1,    0.055]      # Therapist
+            [[0.10625,      0.05,   0.,     0.6,    0.,     0.,     0.,     0.075,  0.1],   # Doctor
+             [0.0775,       0.15,   0.2,    0.07,   0.05,   0.1,    0.,     0.05,   0.05],  # Engineer
+             [0.075625,     0.6,    0.,     0.005,  0.,     0.,     0.,     0.,     0.],    # Farmer
+             [0.084375,     0.15,   0.5,    0.,     0.,     0.025,  0.,     0.,     0.],    # Worker
+             [0.1125,       0.,     0.05,   0.05,   0.35,   0.45,   0.05,   0.,     0.],    # Artist
+             [0.0375,       0.05,   0.1,    0.0015, 0.,     0.,     0.05,   0.,     0.1],   # Customer Service
+             [0.035625,     0.,     0.,     0.07,   0.,     0.,     0.,     0.025,  0.215], # Dentist
+             [0.05625,      0.,     0.,     0.,     0.,     0.,     0.,     0.,     0.4],   # Garbage Collector
+             [0.075,        0.,     0.,     0.,     0.,     0.05,   0.55,   0.005,  0.],    # Spiritual Leader
+             [0.034375,     0.,     0.05,   0.,     0.05,   0.,     0.,     0.12,   0.],    # Lawyer
+             [0.015,        0.,     0.,     0.12,   0.,     0.,     0.,     0.,     0.05],  # Nurse
+             [0.0375,       0.,     0.1,    0.,     0.15,   0.,     0.,     0.05,   0.],    # Politician
+             [0.05,         0.,     0.,     0.,     0.25,   0.1,    0.,     0.,     0.05],  # Teacher
+             [0.0721875,    0.,     0.,     0.0225, 0.,     0.,     0.,     0.475,  0.],    # Emergency
+             [0.06,         0.,     0.,     0.0035, 0.15,   0.225,  0.1,    0.,     0.],    # Athlete
+             [0.0703125,    0.,     0.,     0.1075, 0.,     0.,     0.3,    0.1,    0.055]  # Therapist
              ],
             dtype=float)
 
     def generate_jobs_scores(self):
         resulted_value = self.__jobs_value.copy()
         resulted_value[:, 1:] = self.__jobs_count[:, :] * self.__jobs_value[:, 1:]
-        resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1/self.__jobs_count[:, 0])
+        resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1 / self.__jobs_count[:, 0])
         return resulted_value
 
     def generate_sum_per_aspect(self):
@@ -294,13 +304,38 @@ class HappyCommunityProblem:
         self.__engineer_count = (1., self.context.community_size)
         self.__farmer_count = (1., self.context.community_size)
         self.__worker_count = (1., self.context.community_size)
+        self.__artist_count = (1., self.context.community_size)
+        self.__customer_service_count = (1., self.context.community_size)
+        self.__dentist_count = (1., self.context.community_size)
+        self.__garbage_collector_count = (1., self.context.community_size)
+        self.__spiritual_leader_count = (1., self.context.community_size)
+        self.__lawyer_count = (1., self.context.community_size)
+        self.__nurse_count = (1., self.context.community_size)
+        self.__politician_count = (1., self.context.community_size)
+        self.__teacher_count = (1., self.context.community_size)
+        self.__emergency_count = (1., self.context.community_size)
+        self.__athlete_count = (1., self.context.community_size)
+        self.__therapist_count = (1., self.context.community_size)
         self.__domains = gacvm.Domains(np.array([
             self.__doctor_count,
             self.__engineer_count,
             self.__farmer_count,
-            self.__worker_count
+            self.__worker_count,
+            self.__artist_count,
+            self.__customer_service_count,
+            self.__dentist_count,
+            self.__garbage_collector_count,
+            self.__spiritual_leader_count,
+            self.__lawyer_count,
+            self.__nurse_count,
+            self.__politician_count,
+            self.__teacher_count,
+            self.__emergency_count,
+            self.__athlete_count,
+            self.__therapist_count
         ], float),
-            ('doctor', 'engineer', 'farmer', 'worker'))
+            ('doctor', 'engineer', 'farmer', 'worker', 'artist', 'customer_service', 'dentist', 'garbage_collector',
+             'spiritual_leader', 'lawyer', 'nurse', 'politician', 'teacher', 'emergency', 'athlete', 'therapist'))
 
     def __call__(self, jobs):
         """
@@ -336,9 +371,8 @@ class HappyCommunityProblem:
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.socio_political_context.uncertainty)  # Soustraction par Community Cost
-        satisfaction = umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
-        return satisfaction
+        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.socio_political_context.uncertainty)  # Soustraction du Community Cost à l'indice de satisfaction
+        return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
     def format_solution(self, solution):
