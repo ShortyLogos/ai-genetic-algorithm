@@ -23,6 +23,7 @@ class HappyCommunityProblem:
         self.__jobs_value = None
         self.__default_jobs = np.array([[3], [2], [2], [3]])
         self.__jobs_count = np.empty([1, 4])  # bracket supérieure = nbr de métiers
+        self.__max_single_job = 0.6
         self.generate_jobs_value()
         self.generate_domain()
 
@@ -38,6 +39,14 @@ class HappyCommunityProblem:
     def domains(self):
         return self.__domains
 
+    @property
+    def max_single_job(self):
+        return self.__max_single_job
+
+    @max_single_job.setter
+    def max_single_job(self, val):
+        self.__max_single_job = umath.clamp(0, val, 1)
+
     def generate_jobs_value(self):
         """
         [0] -> Community Cost
@@ -46,10 +55,10 @@ class HappyCommunityProblem:
         [3] -> Health
         """
         self.__jobs_value = np.array(
-            [[0.35, 0., 0., 0.8],  # Doctor
-             [0.3, 0.1, 0.4, 0.125],  # Engineer
-             [0.2, 0.7, 0., 0.05],  # Farmer
-             [0.15, 0.1, 0.6, 0.025]],  # Worker
+            [[0.425, 0., 0., 0.775],  # Doctor
+             [0.27, 0.25, 0.4, 0.1475],  # Engineer
+             [0.1775, 0.55, 0., 0.0075],  # Farmer
+             [0.1275, 0.1, 0.6, 0.07]],  # Worker
             dtype=float)
 
         self.__tags_jobs = np.array(
@@ -98,10 +107,10 @@ class HappyCommunityProblem:
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        if np.max(self.__jobs_count) > 0.6:
+        if np.max(self.__jobs_count) > self.__max_single_job:
             satisfaction = MIN_SATISFACTION
         else:
-            satisfaction = np.sum(aspects_weighted_scores) - sum_per_aspect[0]  # Soustraction par Community Cost
+            satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.incertitude)  # Soustraction par Community Cost
         return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
@@ -186,6 +195,7 @@ class CommunityContext:
         self.__community_size = float(community_size)
 
         # Traits de personnalité d'une communauté
+        self.__incertitude = 1 # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
         self.__religious_sentiment = 3.
         self.__domestic_stability = 3.5
         self.__education_rate = 3.8
@@ -209,8 +219,16 @@ class CommunityContext:
     @property
     def preset_contexts(self):
         return {
-            "West, 2010-2019": np.array([0.275, 0.3, 0.425])
+            "West, 2010-2019": np.array([0.3, 0.325, 0.375])
         }
+
+    @property
+    def incertitude(self):
+        return self.__incertitude
+
+    @incertitude.setter
+    def incertitude(self, val):
+        self.__incertitude = umath.clamp(0, val, 2)
 
     @property
     def weighted_aspects(self):
@@ -240,6 +258,8 @@ if __name__ == '__main__':
     genetic_algorithm.evolve()
 
     best_solution = hcp.format_solution(genetic_algorithm.history.best_solution)
+    print(genetic_algorithm.history.best_fitness)
+    print(best_solution)
 
     pass
 
