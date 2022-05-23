@@ -196,7 +196,9 @@ class SocioPoliticalContext:
     def life_expectancy_min(self):
         return self.__life_expectancy_min
 
-
+    @property
+    def life_expectancy_max(self):
+        return self.__life_expectancy_max
 
 
 class CommunityContext:
