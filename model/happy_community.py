@@ -43,8 +43,173 @@ ASPECTS_MODEL = np.empty([9])
 MIN_SATISFACTION = 0.0001
 
 
+class SocioPoliticalContext:
+    def __init__(self, life_expectancy=60):
+        self.__life_expectancy = life_expectancy
+        self.__life_expectancy_min = 15
+        self.__life_expectancy_max = 110
+        self.__aspects_influence = np.zeros([3], dtype=float)
+        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
+        self.__events = {
+            "Cultural Shift": False,
+            "Economic Crisis": False,
+            "Political Instability": False,
+            "War Raging": False,
+            "Global Warming": False,
+            "Epidemic": False
+        }
+        self.__events_values={
+            "Cultural Shift": np.array([0, 0, 0,.3,.2,.1,-.2,0,-.3]),
+            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0,.1]),
+            "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1,.15]),
+            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0,.2]),
+            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0,.1]),
+            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2,.2])
+        }
+        self.generate_influence()
+
+    def generate_influence(self):
+        self.__scenario_base = np.array([1,1,1,1,1,1,1,1,1])
+        events = self.__events.keys()
+        for key in events:
+            if self.__events[key]:
+                self.__scenario_base += self.__events_values[key]
+        return self.__scenario_base
+
+    @property
+    def events(self):
+        return self.__events
+
+    def set_event(self, key, bool):
+        self.__events[key] = bool
+
+    @property
+    def life_expectancy(self):
+        return self.__life_expectancy
+
+    @life_expectancy.setter
+    def life_expectancy(self, val):
+        self.__life_expectancy = val
+
+    @property
+    def life_expectancy_min(self):
+        return self.__life_expectancy_min
+
+    @property
+    def life_expectancy_max(self):
+        return self.__life_expectancy_max
+
+    @property
+    def uncertainty(self):
+        return self.__uncertainty
+
+
+class CommunityContext:
+    """
+    On doit faire appel à des setters pour les paramétrer
+    """
+
+    def __init__(self, socio_political_context=SocioPoliticalContext(), community_size=200):
+        self.__socio_political_context = socio_political_context
+        self.__community_size = float(community_size)
+        self.__community_min_size = 50
+        self.__community_max_size = 100000
+
+        # Traits de personnalité d'une communauté
+        self.__default_trait_value = 3.
+        self.__min_trait_value = 1.
+        self.__max_trait_value = 10.
+        self.__community_traits = {
+            "Religious Sentiment": self.__default_trait_value,
+            "Domestic Stability": self.__default_trait_value,
+            "Education Rate": self.__default_trait_value
+        }
+
+        # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
+        # self.__community_cost = ... la pondération du CC est toujours de 1
+        self.__health = 1.
+        self.__food_production = 1.
+        self.__goods_production = 1.
+        self.__aspects = None
+        self.__weighted_aspects = None
+        self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
+
+    @property
+    def socio_political_context(self):
+        return self.__socio_political_context
+
+    @socio_political_context.setter
+    def socio_political_context(self, sp_context):
+        self.__socio_political_context = sp_context
+
+    @property
+    def community_size(self):
+        return self.__community_size
+
+    @community_size.setter
+    def community_size(self, size):
+        self.__community_size = size
+
+    @property
+    def community_min_size(self):
+        return self.__community_min_size
+
+    @property
+    def community_max_size(self):
+        return self.__community_max_size
+
+    @community_max_size.setter
+    def community_max_size(self, val):
+        self.__community_max_size = val
+
+    @property
+    def community_traits(self):
+        return self.__community_traits
+
+    def set_community_trait(self, key, val):
+        self.__community_traits[key] = umath.clamp(self.__min_trait_value, val, self.__max_trait_value)
+
+    @property
+    def min_trait_value(self):
+        return self.__min_trait_value
+
+    @property
+    def max_trait_value(self):
+        return self.__max_trait_value
+
+    @property
+    def default_trait_value(self):
+        return self.__default_trait_value
+
+    @property
+    def weighted_aspects(self):
+        return self.__weighted_aspects
+
+    @property
+    def preset_contexts(self):
+        return {
+            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
+        }
+
+    @property
+    def preset_gui_contexts(self):
+        return {
+            "Neutral": [60, 5, 5, 5, False, False, False, False, False, False],
+            "Mushroom Haircut Era": [100, 1, 10, 1, True, False, True, False, True, False],
+            "Fall of the Roman Empire": [40, 7, 4, 4, True, True, True, True, False, False],
+            "2020": [80, 6, 6, 6, False, True, False, False, True, True]
+        }
+
+    def set_weighted_aspects(self, aspects_array):
+        self.__weighted_aspects = aspects_array
+
+    # génère une pondération utilisée par la fitness function
+    def generate_priorities(self):
+        pass
+
+
 class HappyCommunityProblem:
-    def __init__(self, community_context=None):
+    def __init__(self, community_context=CommunityContext()):
         self.__context = community_context
         self.__jobs_value = None
         self.__default_jobs = np.array([[3], [2], [2], [3]])
@@ -172,164 +337,6 @@ class HappyCommunityProblem:
     @max_single_job.setter
     def max_single_job(self, val):
         self.__max_single_job = umath.clamp(0, val, 1)
-
-
-class SocioPoliticalContext:
-    def __init__(self, life_expectancy=60):
-        self.__life_expectancy = life_expectancy
-        self.__life_expectancy_min = 15
-        self.__life_expectancy_max = 110
-        self.__aspects_influence = np.zeros([3], dtype=float)
-        self.__uncertainty = 1  # de 0 à 2, 2 représentant l'incertitude maximale, 0.5 la liesse des années folles
-        self.__events = {
-            "Cultural Shift": False,
-            "Economic Crisis": False,
-            "Political Instability": False,
-            "War Raging": False,
-            "Global Warming": False,
-            "Epidemic": False
-        }
-        self.__events_values={
-            "Cultural Shift": np.array([0, 0, 0,.3,.2,.1,-.2,0,-.3]),
-            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0,.1]),
-            "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1,.15]),
-            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0,.2]),
-            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0,.1]),
-            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2,.2])
-        }
-        self.generate_influence()
-
-
-    def generate_influence(self):
-        self.__scenario_base = np.array([1,1,1,1,1,1,1,1,1])
-        events = self.__events.keys()
-        for key in events:
-            if self.__events[key]:
-                self.__scenario_base += self.__events_values[key]
-        return self.__scenario_base
-
-
-    @property
-    def events(self):
-        return self.__events
-
-    def set_event(self, key, bool):
-        self.__events[key] = bool
-
-    @property
-    def life_expectancy(self):
-        return self.__life_expectancy
-
-    @life_expectancy.setter
-    def life_expectancy(self, val):
-        self.__life_expectancy = val
-
-    @property
-    def life_expectancy_min(self):
-        return self.__life_expectancy_min
-
-    @property
-    def life_expectancy_max(self):
-        return self.__life_expectancy_max
-
-    @property
-    def uncertainty(self):
-        return self.__uncertainty
-
-
-class CommunityContext:
-    """
-    On doit faire appel à des setters pour les paramétrer
-    """
-
-    def __init__(self, socio_political_context=None, community_size=200):
-        self.__socio_political_context = socio_political_context
-        self.__community_size = float(community_size)
-        self.__community_min_size = 50
-        self.__community_max_size = 100000
-
-        # Traits de personnalité d'une communauté
-        self.__default_trait_value = 3.
-        self.__min_trait_value = 1.
-        self.__max_trait_value = 10.
-        self.__community_traits = {
-            "Religious Sentiment": self.__default_trait_value,
-            "Domestic Stability": self.__default_trait_value,
-            "Education Rate": self.__default_trait_value
-        }
-
-        # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
-        # self.__community_cost = ... la pondération du CC est toujours de 1
-        self.__health = 1.
-        self.__food_production = 1.
-        self.__goods_production = 1.
-        self.__aspects = None
-        self.__weighted_aspects = None
-        self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
-
-    @property
-    def socio_political_context(self):
-        return self.__socio_political_context
-
-    @socio_political_context.setter
-    def socio_political_context(self, sp_context):
-        self.__socio_political_context = sp_context
-
-    @property
-    def community_size(self):
-        return self.__community_size
-
-    @community_size.setter
-    def community_size(self, size):
-        self.__community_size = size
-
-    @property
-    def community_min_size(self):
-        return self.__community_min_size
-
-    @property
-    def community_max_size(self):
-        return self.__community_max_size
-
-    @community_max_size.setter
-    def community_max_size(self, val):
-        self.__community_max_size = val
-
-    @property
-    def community_traits(self):
-        return self.__community_traits
-
-    def set_community_trait(self, key, val):
-        self.__community_traits[key] = umath.clamp(self.__min_trait_value, val, self.__max_trait_value)
-
-    @property
-    def min_trait_value(self):
-        return self.__min_trait_value
-
-    @property
-    def max_trait_value(self):
-        return self.__max_trait_value
-
-    @property
-    def default_trait_value(self):
-        return self.__default_trait_value
-
-    @property
-    def weighted_aspects(self):
-        return self.__weighted_aspects
-
-    @property
-    def preset_contexts(self):
-        return {
-            "West, 2010-2019": np.array([0.335, 0.3, 0.365])
-        }
-
-    def set_weighted_aspects(self, aspects_array):
-        self.__weighted_aspects = aspects_array
-
-    # génère une pondération utilisée par la fitness function
-    def generate_priorities(self):
-        pass
 
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
