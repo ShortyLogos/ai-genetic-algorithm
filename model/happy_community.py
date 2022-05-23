@@ -189,13 +189,25 @@ class SocioPoliticalContext:
             "Global Warming": False,
             "Epidemic": False
         }
+        self.__events_values={
+            "Cultural Shift": np.array([0, 0, 0,.3,.2,.1,-.2,0,-.3]),
+            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0,.1]),
+            "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1,.15]),
+            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0,.2]),
+            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0,.1]),
+            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2,.2])
+        }
         self.generate_influence()
 
 
     def generate_influence(self):
-        """
-        """
-        pass
+        self.__scenario_base = np.array([1,1,1,1,1,1,1,1,1])
+        events = self.__events.keys()
+        for key in events:
+            if self.__events[key]:
+                self.__scenario_base += self.__events_values[key]
+        return self.__scenario_base
+
 
     @property
     def events(self):
