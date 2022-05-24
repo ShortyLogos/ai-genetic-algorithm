@@ -176,7 +176,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
                 "\nTranslation en X (0 à la largeur de la surface)"\
                 "\nTranslation en Y (0 à la hauteur de la surface)" \
                 "\nRotation (0 à 360 degrés)" \
-                "\nRotation (0 à 360 degrés)" \
+                "\nHomothécie (0 à la valeur la plus élevée entre la largeur et la hauteur)"\
 
     @property
     def problem_definition(self):
