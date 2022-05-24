@@ -154,7 +154,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
                '\n"Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",' \
                '"Dentist", "Garbage Collector", "Spiritual Leader", "Lawyer", "Nurse",' \
                '"Politician", "Teacher", "Emergency", "Athlete", "Therapist"' \
- \
+
     @property
     def problem_definition(self):
         '''
