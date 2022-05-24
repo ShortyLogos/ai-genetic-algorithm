@@ -111,7 +111,8 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
         Retourne un objet de paramètres de l'algorithme génétique. Ces valeurs seront utilisée pour initialiser la liste des paramètres à gauche dans l'interface utilisateur.
         '''
         params = Parameters()
-        params.maximum_epoch = 100
+        params.maximum_epoch = 150
+        params.mutation_rate = 0.6
         return params
 
     def _update_from_simulation(self, ga=None):

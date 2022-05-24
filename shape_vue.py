@@ -8,11 +8,14 @@
 import gaapp
 from model.gacvm import Parameters, ProblemDefinition
 from model.geometry_optimization import GeometryOptimizationProblem, ShapeGenerator
+import model.custom_strategies as cs
+
 from uqtwidgets import create_scroll_int_value, create_scroll_real_value, QSimpleImage
 
 from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QPushButton, QLabel
 from PySide6.QtGui import (QImage, QPainter, QPen, QColor, QTransform)
+
 from __feature__ import snake_case, true_property
 
 class ShapePanel(gaapp.QSolutionToSolvePanel):
@@ -182,6 +185,9 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
         Retourne un objet de paramètres de l'algorithme génétique. Ces valeurs seront utilisée pour initialiser la liste des paramètres à gauche dans l'interface utilisateur.
         '''
         params = Parameters()
+        params.maximum_epoch = 1500
+        params.mutation_rate = 0.6
+        params.mutation_strategy = cs.WildGenesStrategy()
         return params
 
     def _update_from_simulation(self, ga=None):
