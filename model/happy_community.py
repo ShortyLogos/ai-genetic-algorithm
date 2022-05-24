@@ -62,7 +62,7 @@ class SocioPoliticalContext:
             "Cultural Shift": np.array([0, 0, 0, .3, .2, .1, -.2,  -0.35, -.05]),
             "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, -.025, .1, 0, .1]),
             "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1, .125]),
-            "War Raging": np.array([0, .15, -.05, -.2, -.2, .015, .15, 0, .4]),
+            "War Raging": np.array([0, .15, -.05, -.5, -.2, .015, .135, .15, .4]),
             "Global Warming": np.array([.1, -.1, 0, 0, -.1, .005, .05, 0, .15]),
             "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, -0.05, .2])
         }
@@ -149,7 +149,7 @@ class CommunityContext:
     [7] -> Public Hyigene
     """
 
-    def __init__(self, socio_political_context=SocioPoliticalContext(), community_size=10000):
+    def __init__(self, socio_political_context=SocioPoliticalContext(), community_size=500):
         self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
         self.__community_min_size = 50
@@ -343,6 +343,7 @@ class HappyCommunityProblem:
         resulted_value = self.__jobs_value.copy()
         resulted_value[:, 1:] = self.__jobs_count[:, :] * self.__jobs_value[:, 1:]
         resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1 / self.__jobs_count[:, 0])
+        # resulted_value[:, 0] += self.__jobs_count[:, 0] * self.__jobs_value[:, 0]
         return resulted_value
 
     def generate_sum_per_aspect(self):
@@ -387,7 +388,7 @@ class HappyCommunityProblem:
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.community_size * self.context.socio_political_context.uncertainty)  # Soustraction du Community Cost à l'indice de satisfaction
+        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.socio_political_context.uncertainty)  # Soustraction du Community Cost à l'indice de satisfaction
         return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
