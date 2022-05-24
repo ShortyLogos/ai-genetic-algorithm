@@ -89,13 +89,19 @@ class BoxPanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def summary(self):
-        return "Le but de cette problématique est de construire l'architecture idéale pour une boite possédant le plus grand volume considérant des mesures définis par l'usager."
+        return "Permet de déterminer l'aire des quatre coins à découper de la boîte afin d'optimiser son volume une fois assemblée."
 
     @property
     def description(self):
-        return "Le problème consiste à former une boite en pliant un rectangle sur lui-même. Il faut couper des carrées aux quatres coins du rectangle pour faciliter ce plie. La contrainte " \
-               "qu'il faut respecter est d'optimiser le volume de la boite pour qu'il soit le plus gros possible. L'usager peut selectionner différentes dimensions pour personaliser le problème." \
-               "La solution est calculée à d'un algorithme génétique."
+        return "Membres:\n" \
+                "\tJean-Christophe Caron\n" \
+                "\tSamuel Horvath\n" \
+                "\tDéric Marchand\n" \
+                "\tKarl Robillard Marchand\n"\
+                "\nL'objectif consiste à obtenir le volume maximale d'une boîte en déterminant l'aire d'un coin à découper." \
+                "\n------------------------------------------------" \
+                "\nProblème à 1 dimension :"\
+                "\nUn côté des coins à découper (0 à la taille ls plus petite entre la hauteur et la largeur de la boîte, divisé par deux)."\
 
     @property
     def problem_definition(self):
