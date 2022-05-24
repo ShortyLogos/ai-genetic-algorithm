@@ -158,15 +158,25 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def summary(self):
-        return "Le but c'est de trouver la plus grosse forme qui rentre dans un nuage de points donné sans toucher à aucun point."
+        return "Maximisez l'aire possible d'une forme de votre choix, selon un nombre d'obstacles déterminés à l'intérieur d'une surface."
 
     @property
     def description(self):
-        return "Membres:Jean-Christophe Caron,Samuel Horvath,Déric Marchand,Karl Robillard Marchand"\
-               "Description: ce problème consiste à trouver une forme avec la plus grande surface sans toucher à un point. L'usager peut choisir une forme prédéfinie tel qu'un" \
-               "triangle ou un carrée, mais il peut décider une forme personnalisée avec le nombre de sommets et l'angle. Par la suite, il peut décider du nombre " \
-               "d'obtacle qu'il désire. Le tout est calculé à l'aide d'un algorithme génétique."\
-               "Nombre de dimension:4"
+        return  "Membres:\n" \
+                "\tJean-Christophe Caron\n" \
+                "\tSamuel Horvath\n" \
+                "\tDéric Marchand\n" \
+                "\tKarl Robillard Marchand\n"\
+                "\nL'objectif consiste à obtenir la plus grande aire possible d'une forme donnée, tout en s'assurant que celle-ci" \
+                "ne touche à aucun obstacle ni ne dépasse la surface. L'usager peut choisir une forme prédéfinie (triangle, carré, étoile à cinq branches). " \
+                "Il peut également générer une forme personnalisée en spécifiant le nombre de sommets et le ratio de concavité. Il est également possible de" \
+                "générer un nombre d'obtacles déterminés.\n" \
+                "\n------------------------------------------------" \
+                "\nProblème à 4 dimensions:"\
+                "\nTranslation en X (0 à la largeur de la surface)"\
+                "\nTranslation en Y (0 à la hauteur de la surface)" \
+                "\nRotation (0 à 360 degrés)" \
+                "\nRotation (0 à 360 degrés)" \
 
     @property
     def problem_definition(self):
