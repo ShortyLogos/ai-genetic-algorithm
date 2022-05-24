@@ -138,24 +138,23 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
 
     @property
     def description(self):
-        return "Membres:\n"\
-                "\tJean-Christophe Caron\n"\
-                "\tSamuel Horvath\n"\
-                "\tDéric Marchand\n"\
-                "\tKarl Robillard Marchand\n"\
-                "\nL'objectif consiste à maximiser la plus grande aire possible d'une forme donnée, tout en s'assurant que celle-ci" \
-                "ne touche à aucun obstacle ni ne dépasse la surface. L'usager peut choisir une forme prédéfinie (triangle, carré, étoile à cinq branches). " \
-                "Il peut également générer une forme personnalisée en spécifiant le nombre de sommets et le ratio de concavité. Il est également possible de" \
-                "générer un nombre d'obtacles déterminés.\n" \
-                "\n------------------------------------------------" \
-                "\nProblème à 16 dimensions:"\
-                "\nChaque dimension correspond à un métier parmi les suivants, " \
-               "avec un étendu possible de 0 à la taille de la communauté:"\
-                "\nDoctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",\
-             "Dentist", "Garbage Collector", "Spiritual Leader", "Lawyer", "Nurse",\
-             "Politician", "Teacher", "Emergency", "Athlete", "Therapist"\
-
-
+        return "Membres:\n" \
+               "\tJean-Christophe Caron\n" \
+               "\tSamuel Horvath\n" \
+               "\tDéric Marchand\n" \
+               "\tKarl Robillard Marchand\n" \
+               "\nL'objectif consiste à maximiser la plus grande aire possible d'une forme donnée, tout en s'assurant que celle-ci" \
+               "ne touche à aucun obstacle ni ne dépasse la surface. L'usager peut choisir une forme prédéfinie (triangle, carré, étoile à cinq branches). " \
+               "Il peut également générer une forme personnalisée en spécifiant le nombre de sommets et le ratio de concavité. Il est également possible de" \
+               "générer un nombre d'obtacles déterminés.\n" \
+               "\n------------------------------------------------" \
+               "\nProblème à 16 dimensions :" \
+               "\nChaque dimension correspond à un métier parmi les suivants, " \
+               "avec un étendu possible de 0 à la taille de la communauté:" \
+               '\n"Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",' \
+               '"Dentist", "Garbage Collector", "Spiritual Leader", "Lawyer", "Nurse",' \
+               '"Politician", "Teacher", "Emergency", "Athlete", "Therapist"' \
+ \
     @property
     def problem_definition(self):
         '''

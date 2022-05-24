@@ -175,7 +175,7 @@ class ShapePanel(gaapp.QSolutionToSolvePanel):
                 "Il peut également générer une forme personnalisée en spécifiant le nombre de sommets et le ratio de concavité. Il est également possible de" \
                 "générer un nombre d'obtacles déterminés.\n" \
                 "\n------------------------------------------------" \
-                "\nProblème à 4 dimensions:"\
+                "\nProblème à 4 dimensions :"\
                 "\nTranslation en X (0 à la largeur de la surface)"\
                 "\nTranslation en Y (0 à la hauteur de la surface)" \
                 "\nRotation (0 à 360 degrés)" \
