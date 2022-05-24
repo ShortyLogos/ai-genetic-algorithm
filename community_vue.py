@@ -9,6 +9,7 @@ import math
 import gaapp
 from model.gacvm import Parameters, ProblemDefinition
 from model.happy_community import HappyCommunityProblem
+import model.custom_strategies as cs
 
 from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
 from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QCheckBox
@@ -144,6 +145,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
+        self._problem.context.generate_priorities()
         return ProblemDefinition(self._problem.domains, self._problem)
 
     @property
@@ -152,7 +154,10 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         Retourne un objet de paramètres de l'algorithme génétique. Ces valeurs seront utilisée pour initialiser la liste des paramètres à gauche dans l'interface utilisateur.
         '''
         params = Parameters()
-        return Parameters()
+        params.maximum_epoch = 500
+        params.mutation_rate = 0.7
+        params.mutation_strategy = cs.WildGenesStrategy()
+        return params
 
 
     def _update_from_simulation(self, ga=None):
@@ -160,10 +165,13 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
         if ga:
+            best = ga.history.best_solution
+            average = best #ga.history.history[:,2]
+            worst = best #ga.history.history[:,1]
             data = {
-                'Best': self._problem.format_solution(ga.history.history[:,0]),
-                'Average': self._problem.format_solution(ga.history.history[:,2]),
-                'Worst': self._problem.format_solution(ga.history.history[:,1]),
+                'Best': self._problem.format_solution(best),
+                'Average': self._problem.format_solution(average),
+                'Worst': self._problem.format_solution(worst),
                 }
             self._graphic_generator.update_graphic(data)
-            self._image_visualization = self._graphic_generator.image
+            self._image_visualization.image = self._graphic_generator.image

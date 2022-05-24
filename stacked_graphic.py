@@ -54,7 +54,7 @@ class StackedBarWidget():
                 r, g, b, _ = color
                 text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
                 ax.bar_label(rects, label_type='center', color=text_color)
-            
+
             ax.legend(ncol=int(len(self._categories)/2), bbox_to_anchor=(-0.1, 1),
                 loc=3, fontsize=7.5)
             
