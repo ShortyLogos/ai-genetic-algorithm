@@ -59,14 +59,13 @@ class SocioPoliticalContext:
             "Epidemic": False
         }
         self.__events_values = {
-            "Cultural Shift": np.array([0, 0, 0, .3, .2, .1, -.2,  -0.25, -.05]),
-            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, 0, .1, 0, .1]),
+            "Cultural Shift": np.array([0, 0, 0, .3, .2, .1, -.2,  -0.35, -.05]),
+            "Economic Crisis": np.array([0, -.2, -.1, -.1, -.2, -.025, .1, 0, .1]),
             "Political Instability": np.array([0, 0, -.05, -.1, -.2, -.1, .2, -.1, .125]),
-            "War Raging": np.array([0, .15, -.05, -.2, -.2, .05, .2, 0, .4]),
-            "Global Warming": np.array([.1, -.1, 0, 0, -.1, 0, .12, 0, .15]),
-            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, .2, .2])
+            "War Raging": np.array([0, .15, -.05, -.2, -.2, .015, .15, 0, .4]),
+            "Global Warming": np.array([.1, -.1, 0, 0, -.1, .005, .05, 0, .15]),
+            "Epidemic": np.array([.1, -.3, .2, -.1, -.3, .1, .2, -0.05, .2])
         }
-        self.generate_influence()
 
     def generate_influence(self):
         self.generate_events()
@@ -124,23 +123,40 @@ class SocioPoliticalContext:
         return self.__life_expectancy_max
 
     @property
+    def influence(self):
+        return self.__influence
+
+    @property
     def uncertainty(self):
         return self.__uncertainty
+
+    def uncertainty_change(self, val):
+        self.__uncertainty += val
 
 
 class CommunityContext:
     """
-    On doit faire appel à des setters pour les paramétrer
+    On doit faire appel à des setters pour paramétrer les traits de la communauté.
+    Indices auxquels font référence les fonctions de calculs de traits:
+
+    [0] -> Food Production
+    [1] -> Goods Production
+    [2] -> Health
+    [3] -> Culture
+    [4] -> Entertainement
+    [5] -> Spirituality
+    [6] -> Stability
+    [7] -> Public Hyigene
     """
 
-    def __init__(self, socio_political_context=SocioPoliticalContext(), community_size=200):
+    def __init__(self, socio_political_context=SocioPoliticalContext(), community_size=10000):
         self.__socio_political_context = socio_political_context
         self.__community_size = float(community_size)
         self.__community_min_size = 50
-        self.__community_max_size = 100000
+        self.__community_max_size = 1000000
 
         # Traits de personnalité d'une communauté
-        self.__default_trait_value = 3.
+        self.__default_trait_value = 4.
         self.__min_trait_value = 1.
         self.__max_trait_value = 10.
         self.__community_traits = {
@@ -150,13 +166,57 @@ class CommunityContext:
         }
 
         # Ci-dessous, les priorités d'une communauté (moyenne pondérée dont la somme = 1)
-        # self.__community_cost = ... la pondération du CC est toujours de 1
-        self.__health = 1.
-        self.__food_production = 1.
-        self.__goods_production = 1.
         self.__aspects = np.ones([8], dtype=float) # nbr d'aspects excluant le Community Cost
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
+
+    # génère une pondération utilisée par la fitness function
+    def generate_priorities(self):
+        self.__socio_political_context.generate_influence()
+        self.__aspects += self.__socio_political_context.influence[:-1]
+        self.__community_size_impact()
+        self.__religious_sentiment_impact()
+        self.__domestic_stability_impact()
+        self.__education_rate_impact()
+        self.__weighted_aspects = np.around(self.__aspects[:] / np.sum(self.__aspects), 3)
+
+    def __community_size_impact(self):
+        self.__aspects[0] += self.__community_size / 100000
+        self.__aspects[1] += self.__community_size / 85000
+        self.__aspects[2] += self.__community_size / 70000
+        self.__aspects[4] += self.__community_size / 80000
+        self.__aspects[6] += self.__community_size / 60000
+        self.__aspects[7] += self.__community_size / 85000
+        self.__socio_political_context.uncertainty_change(self.__community_size / 150000)
+
+    def __religious_sentiment_impact(self):
+        if self.__community_traits["Religious Sentiment"] < 5:
+            self.__aspects[1] += 1. - (self.__community_traits["Religious Sentiment"] / 100)
+            self.__aspects[4] += 1. - (self.__community_traits["Religious Sentiment"] / 125)
+            self.__aspects[5] -= 1. - (self.__community_traits["Religious Sentiment"] / 100)
+        else:
+            self.__aspects[4] -= self.__community_traits["Religious Sentiment"] / 150
+            self.__aspects[5] += self.__community_traits["Religious Sentiment"] / 100
+            self.__aspects[6] += self.__community_traits["Religious Sentiment"] / 150
+        self.__aspects[0] += self.__community_traits["Religious Sentiment"] / 185
+        self.__aspects[3] += self.__community_traits["Religious Sentiment"] / 200
+
+    def __domestic_stability_impact(self):
+        self.__aspects[0] += self.__community_traits["Domestic Stability"] / 150
+        self.__aspects[0] += self.__community_traits["Domestic Stability"] / 90
+        self.__aspects[4] += self.__community_traits["Domestic Stability"] / 150
+        self.__aspects[5] += self.__community_traits["Domestic Stability"] / 150
+        self.__aspects[6] += self.__community_traits["Domestic Stability"] / 210
+        self.__aspects[7] += self.__community_traits["Domestic Stability"] / 125
+
+    def __education_rate_impact(self):
+        self.__aspects[1] -= self.__community_traits["Education Rate"] / 135
+        self.__aspects[2] += self.__community_traits["Education Rate"] / 125
+        self.__aspects[3] += self.__community_traits["Education Rate"] / 100
+        self.__aspects[4] -= self.__community_traits["Education Rate"] / 140
+        self.__aspects[5] -= self.__community_traits["Education Rate"] / 90
+        self.__aspects[6] -= self.__community_traits["Education Rate"] / 90
+        self.__aspects[7] -= self.__community_traits["Education Rate"] / 85
 
     @property
     def socio_political_context(self):
@@ -210,12 +270,6 @@ class CommunityContext:
         return self.__weighted_aspects
 
     @property
-    def preset_contexts(self):
-        return {
-            "West, 2010-2019": np.array([0.125, 0.145, 0.105, 0.125, 0.125, 0.125, 0.125, 0.125])
-        }
-
-    @property
     def preset_gui_contexts(self):
         return {
             "Neutral": [60, 5, 5, 5, False, False, False, False, False, False],
@@ -226,10 +280,6 @@ class CommunityContext:
 
     def set_weighted_aspects(self, aspects_array):
         self.__weighted_aspects = aspects_array
-
-    # génère une pondération utilisée par la fitness function
-    def generate_priorities(self):
-        pass
 
 
 class HappyCommunityProblem:
@@ -313,7 +363,6 @@ class HappyCommunityProblem:
         2. Somme du résultat pondéré de chaque aspect - score du coût de communauté (community cost)
             multiplié par la taille de la communauté et le facteur d'incertitude
         """
-        satisfaction = 0.
 
         self.__jobs_count = np.array([
             [jobs[0]],
@@ -348,10 +397,7 @@ class HappyCommunityProblem:
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
 if __name__ == '__main__':
-    c = CommunityContext()
-    c.set_weighted_aspects(c.preset_contexts["West, 2010-2019"])
-
-    hcp = HappyCommunityProblem(c)
+    hcp = HappyCommunityProblem()
     # sum_per_aspect = hcp.generate_sum_per_aspect()
     # aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
     # satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
