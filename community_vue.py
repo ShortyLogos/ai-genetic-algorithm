@@ -165,13 +165,11 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         Fonction utilitaire permettant de donner du 'feedback' pour chaque pas de simulation. Il faut gérer le cas où ga est None. Lorsque ga est None, on donne un feedback d'initialisation sans aucune évolution.
         '''
         if ga:
-            best = ga.history.best_solution
-            average = best #ga.history.history[:,2]
-            worst = best #ga.history.history[:,1]
+            median_index = int(ga.population.shape[0]/2)
             data = {
-                'Best': self._problem.format_solution(best),
-                'Average': self._problem.format_solution(average),
-                'Worst': self._problem.format_solution(worst),
+                'Best': self._problem.format_solution(ga.population[0]),
+                'Median': self._problem.format_solution(ga.population[median_index]),
+                'Worst': self._problem.format_solution(ga.population[-1]),
                 }
             self._graphic_generator.update_graphic(data)
             self._image_visualization.image = self._graphic_generator.image
