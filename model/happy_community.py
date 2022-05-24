@@ -306,8 +306,8 @@ class HappyCommunityProblem:
     @property
     def jobs_tags(self):
         return np.array(
-            ["Doctor", "Engineer", "Farmer", "Worker", "Artist", "Customer Service",
-             "Dentist", "Garbage Collector", "Spiritual Leader", "Lawyer", "Nurse",
+            ["Doctor", "Engineer", "Farmer", "Worker", "Artist", "Cus. Service",
+             "Dentist", "Gar. Coll.", "Spiritual", "Lawyer", "Nurse",
              "Politician", "Teacher", "Emergency", "Athlete", "Therapist"]
             , dtype=np.str_)
 
@@ -343,14 +343,13 @@ class HappyCommunityProblem:
         resulted_value = self.__jobs_value.copy()
         resulted_value[:, 1:] = self.__jobs_count[:, :] * self.__jobs_value[:, 1:]
         resulted_value[:, 0] = self.__jobs_value[:, 0] ** (1 / self.__jobs_count[:, 0])
-        # resulted_value[:, 0] += self.__jobs_count[:, 0] * self.__jobs_value[:, 0]
         return resulted_value
 
     def generate_sum_per_aspect(self):
         return np.sum(self.generate_jobs_scores(), axis=0)
 
     def generate_domain(self):
-        jobs = np.tile(np.array((0, self.context.community_size)), (16, 1))
+        jobs = np.tile(np.array((self.context.community_size * 0.005, self.context.community_size)), (16, 1))
         self.__domains = gacvm.Domains(jobs,
             ('doctor', 'engineer', 'farmer', 'worker', 'artist', 'customer_service', 'dentist', 'garbage_collector',
              'spiritual_leader', 'lawyer', 'nurse', 'politician', 'teacher', 'emergency', 'athlete', 'therapist'))
