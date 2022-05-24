@@ -39,7 +39,6 @@ Structure des tableaux numpy liés aux aspects de société:
 [7] -> Stability
 [8] -> Public Hyigene
 """
-ASPECTS_MODEL = np.empty([9])
 MIN_SATISFACTION = 0.0001
 
 
@@ -49,7 +48,7 @@ class SocioPoliticalContext:
         self.__life_expectancy_min = 15
         self.__life_expectancy_max = 110
         self.__aspects_influence = np.zeros([3], dtype=float)
-        self.__uncertainty = 1 # plus ce degré est élevé, plus le sentiment d'incertitde est élevé au sein de la population
+        self.__uncertainty = 1
         self.__influence = np.array([.0, .0, .0, .0, .0, .0, .0, .0, .0]) # le dernier indice influence le degré d'incertitude
         self.__events = {
             "Cultural Shift": False,
@@ -72,6 +71,7 @@ class SocioPoliticalContext:
     def generate_influence(self):
         self.generate_events()
         self.life_expectancy_impact()
+        self.__uncertainty += self.__influence[-1]
 
     def generate_events(self):
         events = self.__events.keys()
@@ -154,7 +154,7 @@ class CommunityContext:
         self.__health = 1.
         self.__food_production = 1.
         self.__goods_production = 1.
-        self.__aspects = None
+        self.__aspects = np.ones([8], dtype=float) # nbr d'aspects excluant le Community Cost
         self.__weighted_aspects = None
         self.generate_priorities()  # Fonction qui génère la pondération des aspects de société
 
@@ -235,10 +235,9 @@ class CommunityContext:
 class HappyCommunityProblem:
     def __init__(self, community_context=CommunityContext()):
         self.__context = community_context
+        self.__domains = None
         self.__jobs_value = None
-        self.__default_jobs = np.array([[3], [2], [2], [3]])
         self.__jobs_count = np.empty([1, 16])  # bracket supérieure = nbr de métiers
-        self.__max_single_job = 0.6
         self.generate_jobs_value()
         self.generate_domain()
 
@@ -300,40 +299,8 @@ class HappyCommunityProblem:
         return np.sum(self.generate_jobs_scores(), axis=0)
 
     def generate_domain(self):
-        self.__doctor_count = (1., self.context.community_size)
-        self.__engineer_count = (1., self.context.community_size)
-        self.__farmer_count = (1., self.context.community_size)
-        self.__worker_count = (1., self.context.community_size)
-        self.__artist_count = (1., self.context.community_size)
-        self.__customer_service_count = (1., self.context.community_size)
-        self.__dentist_count = (1., self.context.community_size)
-        self.__garbage_collector_count = (1., self.context.community_size)
-        self.__spiritual_leader_count = (1., self.context.community_size)
-        self.__lawyer_count = (1., self.context.community_size)
-        self.__nurse_count = (1., self.context.community_size)
-        self.__politician_count = (1., self.context.community_size)
-        self.__teacher_count = (1., self.context.community_size)
-        self.__emergency_count = (1., self.context.community_size)
-        self.__athlete_count = (1., self.context.community_size)
-        self.__therapist_count = (1., self.context.community_size)
-        self.__domains = gacvm.Domains(np.array([
-            self.__doctor_count,
-            self.__engineer_count,
-            self.__farmer_count,
-            self.__worker_count,
-            self.__artist_count,
-            self.__customer_service_count,
-            self.__dentist_count,
-            self.__garbage_collector_count,
-            self.__spiritual_leader_count,
-            self.__lawyer_count,
-            self.__nurse_count,
-            self.__politician_count,
-            self.__teacher_count,
-            self.__emergency_count,
-            self.__athlete_count,
-            self.__therapist_count
-        ], float),
+        jobs = np.tile(np.array((self.context.community_size * 0.005, self.context.community_size)), (16, 1))
+        self.__domains = gacvm.Domains(jobs,
             ('doctor', 'engineer', 'farmer', 'worker', 'artist', 'customer_service', 'dentist', 'garbage_collector',
              'spiritual_leader', 'lawyer', 'nurse', 'politician', 'teacher', 'emergency', 'athlete', 'therapist'))
 
@@ -344,7 +311,7 @@ class HappyCommunityProblem:
             - Multiplication du nombre de jobs * valeur de l'aspect concerné par scalaire
             - Somme de ces résultats * pondération
         2. Somme du résultat pondéré de chaque aspect - score du coût de communauté (community cost)
-        somme de tous les scores pondérés des différents aspects de société
+            multiplié par la taille de la communauté et le facteur d'incertitude
         """
         satisfaction = 0.
 
@@ -371,20 +338,12 @@ class HappyCommunityProblem:
         self.__jobs_count = np.around(self.__jobs_count[:, :] / np.sum(self.__jobs_count), 3)
         sum_per_aspect = self.generate_sum_per_aspect()
         aspects_weighted_scores = (sum_per_aspect[1:] * self.__context.weighted_aspects)
-        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.socio_political_context.uncertainty)  # Soustraction du Community Cost à l'indice de satisfaction
+        satisfaction = np.sum(aspects_weighted_scores) - (sum_per_aspect[0] * self.context.community_size * self.context.socio_political_context.uncertainty)  # Soustraction du Community Cost à l'indice de satisfaction
         return umath.clamp(MIN_SATISFACTION, satisfaction, satisfaction)
 
     # fonction utilitaire de formatage pour obtenir des valeurs relatives
     def format_solution(self, solution):
         return np.around(solution[:] / np.sum(solution), 3)
-
-    @property
-    def max_single_job(self):
-        return self.__max_single_job
-
-    @max_single_job.setter
-    def max_single_job(self, val):
-        self.__max_single_job = umath.clamp(0, val, 1)
 
 
 # À SUPPRIMER AVANT REMISE, TEST SEULEMENT
