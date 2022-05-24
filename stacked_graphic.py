@@ -55,10 +55,9 @@ class StackedBarWidget():
                 text_color = 'white' if r * g * b < 0.5 else 'darkgrey'
                 ax.bar_label(rects, label_type='center', color=text_color)
 
-            ax.legend(ncol=int(len(self._categories)/2), bbox_to_anchor=(-0.1, 1),
+            ax.legend(ncol=int(len(self._categories)/2), bbox_to_anchor=(-0.2, 1),
                 loc=3, fontsize=7.5)
             
             canvas.draw()
             w, h = canvas.get_width_height()
             self._img = QImage(canvas.buffer_rgba(), w, h, w * 4, QImage.Format_ARGB32)
-
