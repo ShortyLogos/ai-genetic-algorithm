@@ -394,18 +394,3 @@ class HappyCommunityProblem:
     def format_solution(self, solution):
         return np.around(solution[:] / np.sum(solution), 3)
 
-
-# À SUPPRIMER AVANT REMISE, TEST SEULEMENT
-if __name__ == '__main__':
-    hcp = HappyCommunityProblem()
-    # sum_per_aspect = hcp.generate_sum_per_aspect()
-    # aspects_weighted_scores = (sum_per_aspect[1:] * c.weighted_aspects)
-    # satisfaction_fitness_score = np.sum(aspects_weighted_scores) - sum_per_aspect[0]
-
-    new_problem = gacvm.ProblemDefinition(hcp.domains, hcp)
-
-    genetic_algorithm = gacvm.GeneticAlgorithm(new_problem)
-    genetic_algorithm.evolve()
-
-    best_solution = hcp.format_solution(genetic_algorithm.history.best_solution)
-    pass
