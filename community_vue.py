@@ -12,7 +12,7 @@ from model.happy_community import HappyCommunityProblem
 import model.custom_strategies as cs
 
 from PySide6.QtCore import Qt, Signal, Slot, QSignalBlocker
-from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QCheckBox
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QFormLayout, QComboBox, QCheckBox, QPushButton, QMessageBox, QSizePolicy
 from uqtwidgets import create_scroll_int_value, QSimpleImage
 from stacked_graphic import StackedBarWidget
 
@@ -29,6 +29,8 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         self._main_layout = QHBoxLayout()
         self.set_layout(self._main_layout)
         self._problem = HappyCommunityProblem()
+        self._best_result = []
+        self._population_size = 0
 
         #### Parameters ####
         paramsBox = QGroupBox("Parameters")
@@ -83,6 +85,13 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
             self.__checkbox_list.append(checkbox)
             paramsBox_layout.add_widget(checkbox)
         
+        paramsBox_layout.add_stretch()
+
+        resultat_button = QPushButton('Results')
+        resultat_button.size_policy = QSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
+        resultat_button.clicked.connect(lambda : QMessageBox.information(self, f'Results', self.best_results))
+        paramsBox_layout.add_widget(resultat_button)
+
         paramsBox_layout.add_stretch()
 
         #### Visualization ####
@@ -160,6 +169,7 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         '''
         Retourne un objet complet de définition du problème. L'objet retourné est celui qui sera résoud par l'algorithme génétique.
         '''
+        self._population_size = self._size_widget.value
         self._problem.context.generate_priorities()
         return ProblemDefinition(self._problem.domains, self._problem)
 
@@ -174,6 +184,12 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         params.mutation_strategy = cs.WildGenesStrategy()
         return params
 
+    @property
+    def best_results(self):
+        description = ""
+        for job, result in zip(self._problem.jobs_tags, self._best_result):
+            description += job+": "+str(math.ceil(result*self._population_size))+"\n"
+        return description
 
     def _update_from_simulation(self, ga=None):
         '''
@@ -181,8 +197,9 @@ class CommunityPanel(gaapp.QSolutionToSolvePanel):
         '''
         if ga:
             median_index = int(ga.population.shape[0]/2)
+            self._best_result = self._problem.format_solution(ga.population[0])
             data = {
-                'Best': self._problem.format_solution(ga.population[0]),
+                'Best': self._best_result,
                 'Median': self._problem.format_solution(ga.population[median_index]),
                 'Worst': self._problem.format_solution(ga.population[-1]),
                 }
